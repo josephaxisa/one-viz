@@ -1,10 +1,8 @@
-# One-viz: AI-Powered Interactive Data Visualization for Everyone
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> One-viz is an open-source initiative to bridge the gap between complex data analytics and practical business use by developing AI-powered, interactive web components for data visualization.
+> Bridging the gap between complex data analytics and practical business use with AI-powered, interactive web components.
 
-One-viz is a next-generation data visualization library built on modern web standards (Web Components) and designed to be:
+**One-viz is a next-generation data visualization library built on modern web standards (Web Components) and designed to be:**
 
 *   **Framework-Agnostic:** Works seamlessly with React, Angular, Vue, Svelte, or no framework at all.
 *   **Easy to Use:** Simple, declarative syntax for integrating powerful visualizations into your web applications.
