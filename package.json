@@ -1,0 +1,34 @@
+{
+    "name": "one-viz",
+    "version": "0.0.1",
+    "description": "Interactive Web Components for Data Visualization",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+      "build": "tsc",
+      "dev": "tsc --watch",
+      "start": "http-server ./demo"
+    },
+    "keywords": [
+      "web components",
+      "data visualization",
+      "charts",
+      "graphs",
+      "analytics",
+      "open source",
+      "Lit",
+      "GenAI",
+      "framework-agnostic"
+    ],
+    "author": "Joseph Axisa",
+    "license": "MIT",
+    "devDependencies": {
+      "http-server": "^14.1.1",
+      "typescript": "^5.2.2"
+    },
+    "dependencies": {
+      "lit": "^3.0.0",
+      "highcharts": "^11.2.0"
+    }
+  }

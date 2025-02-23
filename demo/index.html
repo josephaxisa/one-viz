@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>One-viz Demo</title>
+    <style>
+        .container {
+            display: flex; /* Use flexbox for side-by-side layout */
+            gap: 20px; /* Add some space between charts */
+        }
+    </style>
+</head>
+<body>
+    <h1>One-viz Demo</h1>
+
+    <div class="container">
+        <oneviz-barchart
+          data-url="./data.json"
+          x-field="category"
+          y-field="value"
+          title="Sample Bar Chart"
+        ></oneviz-barchart>
+    </div>
+
+    <script type="module">
+        import '/src/index.js';
+    </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+import '../../../indicators/trix.src';

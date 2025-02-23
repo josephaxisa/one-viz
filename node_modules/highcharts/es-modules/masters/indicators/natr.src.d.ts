@@ -1,0 +1,1 @@
+import '../../../indicators/natr.src';

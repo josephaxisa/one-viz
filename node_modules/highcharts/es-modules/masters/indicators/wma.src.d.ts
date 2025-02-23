@@ -1,0 +1,1 @@
+import '../../../indicators/wma.src';
