@@ -140,7 +140,7 @@ One-viz is released under the MIT License. See [LICENSE](LICENSE) for details.
 
 **Maintainer:**
 
-Joseph Axisa ([Your GitHub Profile Link])
+Joseph Axisa ([Github](http://github.com/josephaxisa/))
 
 ---
 **Acknowledgements:**
