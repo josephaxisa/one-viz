@@ -2,7 +2,7 @@ remote_theme: pages-themes/cayman@v0.2.0
 plugins:
   - jekyll-remote-theme
 
-title: One-viz: AI-Powered Interactive Data Visualization for Everyone
+title: 'One-viz: AI-Powered Interactive Data Visualization for Everyone'
 description: Open-source web components for building interactive data visualizations with a GenAI conversational engine.
 long_description: "One-viz is an open-source library of framework-agnostic web components for building interactive data visualizations, powered by a GenAI conversational engine."
 
