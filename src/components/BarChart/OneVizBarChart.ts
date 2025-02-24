@@ -1,79 +1,33 @@
-import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import * as Highcharts from 'highcharts';
-
-interface ChartData {
-    [key: string]: string | number;
-}
+import { AbstractChart, ChartData } from '../AbstractChart'; 
+import { html, css } from 'lit';
 
 @customElement('oneviz-barchart')
-export class OneVizBarChart extends LitElement {
+export class OneVizBarChart extends AbstractChart { // Extend AbstractChart
 
-    @property({ type: String, attribute: 'data-url' }) dataUrl: string = '';
-    @property({ type: String, attribute: 'x-field' }) xField: string = '';
-    @property({ type: String, attribute: 'y-field' }) yField: string = '';
-    @property({ type: String }) title: string = 'OneViz Bar Chart';
-    @property({ type: Array }) data: ChartData[] = [];
-
-
-  static styles = css`
-    :host {
-      display: block;
-      width: 100%;
-      height: 400px;
-      font-family: sans-serif; /* Add a default font */
-    }
-    #chart {
-      width: 100%;
-      height: 100%;
-    }
-    .chart-title {
-      text-align: center;
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-bottom: 0.5em;
-    }
-  `;
-
-  private chart: Highcharts.Chart | undefined;
-
-  async firstUpdated() {
-    if (this.dataUrl) {
-      await this.fetchData();
-    }
-    this.createChart();
-  }
-
-  updated(changedProperties: Map<string | number | symbol, unknown>) {
-    if (changedProperties.has('data') || changedProperties.has('xField') || changedProperties.has('yField')) {
-      this.createChart();
-    }
-  }
-
-  async fetchData() {
-    try {
-      const response = await fetch(this.dataUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  static styles = [
+    AbstractChart.styles, 
+    css`
+      /* Bar-chart specific styles here (if any) */
+      :host {
+        --oneviz-bar-color: #4CAF50; /* Default color */
       }
-      this.data = await response.json();
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      this.data = []; // Set data to empty array on error
-      // Consider rendering an error message in the UI
-    }
-  }
+    `
+  ];
+    @property({ type: String }) override title: string = 'OneViz Bar Chart';
+
 
   createChart() {
     if (!this.data || this.data.length === 0 || !this.xField || !this.yField) {
       return;
     }
 
-    const categories = this.data.map((item) => String(item[this.xField])); // Ensure categories are strings
-    const seriesData = this.data.map((item) => Number(item[this.yField])); // Ensure values are numbers
+    const categories = this.data.map((item) => String(item[this.xField]));
+    const seriesData = this.data.map((item) => Number(item[this.yField]));
 
     if (this.chart) {
-        this.chart.destroy(); //destroy the previous chart instance
+        this.chart.destroy();
     }
 
     this.chart = Highcharts.chart(this.shadowRoot!.getElementById('chart')!, {
@@ -93,24 +47,35 @@ export class OneVizBarChart extends LitElement {
         title: {
           text: this.yField
         },
-        min: 0, // Ensure y-axis starts at 0
+        min: 0,
       },
       series: [{
         type: 'bar',
         name: this.yField,
         data: seriesData,
-        color: '#4CAF50' // Add a default color
+        color: 'var(--oneviz-bar-color)', // Use CSS variable
+          point: {
+              events: {
+                  click: (event: Highcharts.PointClickEventObject) => {
+                      this.dispatchEvent(new CustomEvent('oneviz-bar-click', {
+                          detail: {
+                              x: event.point.category,
+                              y: event.point.y,
+                              originalEvent: event
+                          },
+                          bubbles: true,
+                          composed: true
+                      }));
+                  }
+              }
+          }
       }],
-        credits: {
-            enabled: false
-        },
+      credits: {
+        enabled: false
+      },
+       tooltip: { // Add tooltip configuration
+                pointFormat: '<b>{point.y}</b><br/>{point.category}',
+        }
     });
-  }
-
-  render() {
-    return html`
-      <div class="chart-title">${this.title}</div>
-      <div id="chart"></div>
-    `;
   }
 }
