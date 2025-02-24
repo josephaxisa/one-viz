@@ -1,65 +1,22 @@
-import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import * as Highcharts from 'highcharts';
+import { AbstractChart, ChartData } from '../AbstractChart'; 
+import { html, css } from 'lit';
 
-interface ChartData {
-    [key: string]: string | number;
-}
 @customElement('oneviz-linechart')
-export class OneVizLineChart extends LitElement {
+export class OneVizLineChart extends AbstractChart { 
 
-    @property({ type: String, attribute: 'data-url' }) dataUrl: string = '';
-    @property({ type: String, attribute: 'x-field' }) xField: string = '';
-    @property({ type: String, attribute: 'y-field' }) yField: string = '';
-    @property({ type: String }) title: string = 'OneViz Line Chart';
-    @property({ type: Array }) data: ChartData[] = [];
-
-    static styles = css`
-    :host {
-      display: block;
-      width: 100%;
-      height: 400px;
-      font-family: sans-serif;
-    }
-    #chart {
-      width: 100%;
-      height: 100%;
-    }
-    .chart-title {
-      text-align: center;
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-bottom: 0.5em;
-    }
-  `;
-
-  private chart: Highcharts.Chart | undefined;
-
-  async firstUpdated() {
-    if (this.dataUrl) {
-      await this.fetchData();
-    }
-    this.createChart();
-  }
-
-    updated(changedProperties: Map<string | number | symbol, unknown>) {
-        if (changedProperties.has('data') || changedProperties.has('xField') || changedProperties.has('yField')) {
-            this.createChart();
-        }
-    }
-
-  async fetchData() {
-    try {
-      const response = await fetch(this.dataUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  static styles = [
+    AbstractChart.styles,
+    css`
+      /* Line-chart specific styles here (if any) */
+      :host {
+        --oneviz-line-color: #007bff;
       }
-      this.data = await response.json();
-    } catch (error) {
-      console.error('Error fetching data:', error);
-        this.data = [];
-    }
-  }
+    `
+  ];
+    @property({ type: String }) override title: string = 'OneViz Line Chart';
+
 
   createChart() {
     if (!this.data || this.data.length === 0 || !this.xField || !this.yField) {
@@ -69,9 +26,10 @@ export class OneVizLineChart extends LitElement {
     const categories = this.data.map((item) => String(item[this.xField]));
     const seriesData = this.data.map((item) => Number(item[this.yField]));
 
-      if (this.chart) {
-          this.chart.destroy();
-      }
+    if (this.chart) {
+        this.chart.destroy();
+    }
+
 
     this.chart = Highcharts.chart(this.shadowRoot!.getElementById('chart')!, {
       chart: {
@@ -96,15 +54,29 @@ export class OneVizLineChart extends LitElement {
         type: 'line',
         name: this.yField,
         data: seriesData,
-        color: '#007bff' // Add a default color
+        color: 'var(--oneviz-line-color)',
+          point: {
+              events: {
+                  click: (event: Highcharts.PointClickEventObject) => {
+                      this.dispatchEvent(new CustomEvent('oneviz-line-click', {
+                          detail: {
+                              x: event.point.category,
+                              y: event.point.y,
+                              originalEvent: event
+                          },
+                          bubbles: true,
+                          composed: true
+                      }));
+                  }
+              }
+          }
       }],
-        credits: {
-            enabled: false
-        },
+      credits: {
+        enabled: false
+      },
+        tooltip: { 
+            pointFormat: '<b>{point.y}</b><br/>{point.category}',
+        }
     });
-  }
-
-  render() {
-    return html`<div class="chart-title">${this.title}</div><div id="chart"></div>`;
   }
 }
