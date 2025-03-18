@@ -19,7 +19,7 @@ jest.mock('highcharts', () => ({
             xAxis: [{ update: jest.fn() }],  
             yAxis: [{ update: jest.fn(), setExtremes: jest.fn() }], 
         })),
-        setOptions: jest.fn(), //If you use setOptions.
+        setOptions: jest.fn(),
     },
 }));
 
