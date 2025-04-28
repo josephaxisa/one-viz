@@ -1,66 +1,70 @@
-import { LitElement, html, css, property } from 'lit';
-import { customElement } from 'lit/decorators.js';
-import * as Highcharts from 'highcharts';
-import { ChartData } from '../../types'; // Assuming you have this type defined
+import { AbstractChart } from './AbstractChart'; 
 
 @customElement('oneviz-piechart')
-export class OneVizPieChart extends LitElement {
-  @property({ type: Array }) data: ChartData=;
-  @property({ type: String, attribute: 'data-field' }) dataField = 'value'; // Field containing the numerical value
-  @property({ type: String, attribute: 'category-field' }) categoryField = 'category'; // Field containing the category name
+export class OneVizPieChart extends AbstractChart {
+  static override styles = [
+    AbstractChart.styles,
+    css`
+      :host {
+        /* Specific styles for pie chart can go here if needed */
+        /* For example, you might want to ensure it's displayed as a block */
+        display: block; 
+      }
+    `,
+  ];
 
-  private chart?: Highcharts.Chart;
+  @property({ type: String }) override title: string = 'OneViz Pie Chart';
 
-  static styles = css`
-    :host {
-      display: block;
-      width: 100%;
-      height: 400px; /* Or any default height */
-    }
-    .chart-container {
-      width: 100%;
-      height: 100%;
-    }
-  `;
+  // For a pie chart, xField represents the 'name' or 'label' of the slice,
+  // and yField represents the 'value' or 'y' of the slice.
 
-  updated(changedProperties: Map<string, any>) {
-    if (
-      changedProperties.has('data') ||
-      changedProperties.has('dataField') ||
-      changedProperties.has('categoryField')
-    ) {
-      this.renderChart();
-    }
-  }
-
-  renderChart() {
-    if (!this.shadowRoot) {
+  override createChart() {
+    // Ensure data and necessary fields are provided
+    if (!this.data || this.data.length === 0 || !this.xField || !this.yField) {
+      // Optionally, render a message or clear the chart if it exists
+      if (this.chart) {
+        this.chart.destroy();
+        this.chart = undefined;
+      }
+      const chartContainer = this.shadowRoot?.getElementById('chart');
+      if (chartContainer) {
+        chartContainer.innerHTML = 'No data or fields configured for Pie Chart.';
+      }
       return;
     }
 
-    const container = this.shadowRoot.querySelector('.chart-container');
-    if (!container) {
-      return;
-    }
-
-    const chartData = this.data.map((item) => ({
-      name: item[this.categoryField],
-      y: item[this.dataField],
+    // Transform the generic data into Highcharts pie series format
+    // [{ name: 'Slice 1', y: value1 }, { name: 'Slice 2', y: value2 }, ...]
+    const seriesData = this.data.map((item) => ({
+      name: String(item[this.xField as keyof typeof item]), // Use xField for the slice name
+      y: Number(item[this.yField as keyof typeof item]),   // Use yField for the slice value
     }));
 
     if (this.chart) {
-      this.chart.destroy(); // Clean up previous chart instance
+      this.chart.destroy();
     }
 
-    this.chart = Highcharts.chart(container as HTMLElement, {
+    const chartOptions: Highcharts.Options = {
       chart: {
         type: 'pie',
+        plotShadow: false,
+        backgroundColor: 'var(--oneviz-chart-background-color, #FFFFFF)',
       },
       title: {
-        text: 'Placeholder Pie Chart', // Add a title
+        text: this.title,
+        style: {
+          color: 'var(--oneviz-chart-title-color, #333333)',
+          fontSize: 'var(--oneviz-chart-title-font-size, 18px)',
+        }
       },
       tooltip: {
+        // Basic tooltip, will be enhanced in a later commit
         pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+      },
+      accessibility: {
+        point: {
+          valueSuffix: '%',
+        },
       },
       plotOptions: {
         pie: {
@@ -69,23 +73,61 @@ export class OneVizPieChart extends LitElement {
           dataLabels: {
             enabled: true,
             format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+            style: {
+                color: 'var(--oneviz-chart-datalabel-color, #333333)',
+            }
           },
+          showInLegend: this.showLegend !== undefined ? this.showLegend : true, 
         },
       },
       series: [
         {
-          type: 'pie',
-          name: 'Data',
-          data: chartData,
+          type: 'pie', 
+          name: this.yField || 'Value', 
+          colorByPoint: true, 
+          data: seriesData,
         },
       ],
       credits: {
-        enabled: false, // Disable Highcharts credits
+        enabled: false,
       },
-    });
+      legend: {
+        enabled: this.showLegend !== undefined ? this.showLegend : true,
+        itemStyle: {
+            color: 'var(--oneviz-chart-legend-text-color, #333333)',
+        }
+      }
+    };
+
+    // Render the chart
+    const chartContainer = this.shadowRoot?.getElementById('chart');
+    if (chartContainer) {
+      this.chart = Highcharts.chart(chartContainer, chartOptions);
+    } else {
+      console.error('Chart container not found for OneVizPieChart.');
+    }
   }
 
-  render() {
-    return html`<div class="chart-container"></div>`;
+  // `requestUpdate` is called by Lit when properties change.
+  // We override it to ensure `createChart` is called after updates.
+  override updated(changedProperties: Map<string | number | symbol, unknown>): void {
+    super.updated(changedProperties); // Call super.updated() for AbstractChart logic
+
+    // Check if relevant properties have changed to decide if chart needs recreation
+    if (
+      changedProperties.has('data') ||
+      changedProperties.has('xField') ||
+      changedProperties.has('yField') ||
+      changedProperties.has('title') ||
+      changedProperties.has('showLegend')
+    ) {
+      this.createChart();
+    }
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'oneviz-piechart': OneVizPieChart;
   }
 }
