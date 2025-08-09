@@ -1,31 +1,19 @@
 import { customElement } from 'lit/decorators.js';
-import type * as Highcharts from 'highcharts';
+import type { Options } from 'highcharts';
 import { AbstractChart } from '../AbstractChart/AbstractChart';
 
 @customElement('oneviz-barchart')
 export class OneVizBarChart extends AbstractChart {
   
-  createChart() {
-    if (this.errorMessage) {
-        if (this.chart) {
-            this.chart.destroy();
-            this.chart = undefined;
-        }
-        return;
-    }
-    
-    if (!this.data || !this.xField || !this.yField) {
-      return; 
+  getChartOptions(): Options | null {
+    if (this.data.length === 0) {
+        return null; // Don't render an empty chart
     }
 
     const categories = this.data.map((item) => String(item[this.xField]));
     const seriesData = this.data.map((item) => item[this.yField]);
 
-    if (this.chart) {
-      this.chart.destroy();
-    }
-
-    this.chart = window.Highcharts.chart(this.shadowRoot!.querySelector('#chart') as HTMLElement, {
+    return {
       chart: {
         type: 'bar'
       },
@@ -53,6 +41,6 @@ export class OneVizBarChart extends AbstractChart {
         name: this.yField,
         data: seriesData
       }]
-    });
+    };
   }
 }

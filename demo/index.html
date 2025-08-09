@@ -37,6 +37,7 @@
             border-radius: 8px;
             padding: 1.5em;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            min-height: 400px;
         }
         p {
             line-height: 1.6;
@@ -47,101 +48,72 @@
 
     <header>
         <h1>One-viz Component Demo</h1>
-        <p>Showcasing the core components of the One-viz library.</p>
+        <p>Showcasing the core components and robust error handling of the One-viz library.</p>
     </header>
 
     <h2>Successful Chart Rendering</h2>
     <div class="container">
         <div class="chart-wrapper">
-            <oneviz-barchart
-              data-url="./data.json"
-              x-field="month"
-              y-field="revenue"
-              title="Monthly Revenue"
-            ></oneviz-barchart>
+            <oneviz-barchart id="bar-chart" x-field="month" y-field="revenue" title="Monthly Revenue"></oneviz-barchart>
         </div>
         <div class="chart-wrapper">
-            <oneviz-linechart
-              data-url="./data.json"
-              x-field="month"
-              y-field="profit"
-              title="Monthly Profit"
-            ></oneviz-linechart>
+            <oneviz-linechart id="line-chart" x-field="month" y-field="profit" title="Monthly Profit"></oneviz-linechart>
         </div>
         <div class="chart-wrapper">
-            <oneviz-piechart
-              data-url="./data.json"
-              x-field="source"
-              y-field="users"
-              title="Website Traffic Sources"
-            ></oneviz-piechart>
+            <oneviz-piechart id="pie-chart" x-field="source" y-field="users" title="Website Traffic Sources"></oneviz-piechart>
         </div>
     </div>
 
     <h2>Data Validation & Error Handling</h2>
     <div class="container">
         <div class="chart-wrapper">
-            <oneviz-barchart
-              data-url="./data.json"
-              x-field="category"
-              y-field="value"
-              title="Error: Malformed Data"
-            ></oneviz-barchart>
+            <oneviz-barchart id="error-chart-1" x-field="category" y-field="value" title="Error: Malformed Data"></oneviz-barchart>
         </div>
         <div class="chart-wrapper">
-            <oneviz-linechart
-              data-url="./data.json"
-              x-field="non_existent_field"
-              y-field="value"
-              title="Error: Invalid X-Field"
-            ></oneviz-linechart>
+            <oneviz-linechart id="error-chart-2" x-field="non_existent_field" y-field="value" title="Error: Invalid X-Field"></oneviz-linechart>
         </div>
         <div class="chart-wrapper">
-            <oneviz-piechart
-              data-url="./non_existent_data.json"
-              x-field="source"
-              y-field="users"
-              title="Error: Data URL Not Found"
-            ></oneviz-piechart>
+            <oneviz-piechart data-url="/demo/non_existent_data.json" x-field="source" y-field="users" title="Error: Data URL Not Found"></oneviz-piechart>
         </div>
     </div>
 
     <script type="module">
-        // In a real application, you would `import 'one-viz'`.
-        // For this demo, we import directly from the source.
-        import './dist/src/components/index.js';
+        import '/dist/one-viz.js';
 
-        // We need to override the fetchData method for the demo to work with the new data structure
-        const originalFetchData = customElements.get('oneviz-barchart').prototype.fetchData;
-        customElements.get('oneviz-barchart').prototype.fetchData = async function() {
-            const title = this.title;
-            await originalFetchData.call(this);
-            if (title.includes('Revenue')) {
-                this.data = this.data.sales_by_month;
-            } else if (title.includes('Malformed')) {
-                this.data = this.data.malformed_data;
+        async function setupCharts() {
+            try {
+                const response = await fetch('/demo/data.json');
+                const data = await response.json();
+
+                // --- Success Cases ---
+                const barChart = document.getElementById('bar-chart');
+                barChart.data = data.sales_by_month;
+
+                const lineChart = document.getElementById('line-chart');
+                lineChart.data = data.sales_by_month;
+
+                const pieChart = document.getElementById('pie-chart');
+                pieChart.data = data.traffic_sources;
+
+                // --- Error Cases ---
+                const errorChart1 = document.getElementById('error-chart-1');
+                errorChart1.data = data.malformed_data; // Will trigger y-field error
+
+                const errorChart2 = document.getElementById('error-chart-2');
+                errorChart2.data = data.sales_by_month; // Will trigger x-field error
+
+            } catch (error) {
+                console.error("Failed to load demo data:", error);
+                // You could display a global error message here
             }
         }
 
-        const originalFetchDataLine = customElements.get('oneviz-linechart').prototype.fetchData;
-        customElements.get('oneviz-linechart').prototype.fetchData = async function() {
-            const title = this.title;
-            await originalFetchDataLine.call(this);
-            if (title.includes('Profit')) {
-                this.data = this.data.sales_by_month;
-            } else if (title.includes('Invalid')) {
-                this.data = this.data.malformed_data;
-            }
-        }
-
-        const originalFetchDataPie = customElements.get('oneviz-piechart').prototype.fetchData;
-        customElements.get('oneviz-piechart').prototype.fetchData = async function() {
-            const title = this.title;
-            await originalFetchDataPie.call(this);
-            if (title.includes('Traffic')) {
-                this.data = this.data.traffic_sources;
-            }
-        }
+        // Wait for all components to be defined before setting data
+        Promise.all([
+            customElements.whenDefined('oneviz-barchart'),
+            customElements.whenDefined('oneviz-linechart'),
+            customElements.whenDefined('oneviz-piechart')
+        ]).then(setupCharts);
 
     </script>
 </body>

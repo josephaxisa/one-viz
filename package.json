@@ -2,33 +2,37 @@
     "name": "one-viz",
     "version": "0.0.1",
     "description": "Interactive Web Components for Data Visualization",
-    "main": "dist/index.js",
-    "module": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/one-viz.js",
+    "module": "dist/one-viz.js",
+    "types": "dist/components/index.d.ts",
     "scripts": {
-      "build": "tsc",
-      "dev": "tsc --watch",
-      "start": "http-server ./demo"
+        "build": "rollup -c",
+        "dev": "rollup -c -w",
+        "start": "http-server ."
     },
     "keywords": [
-      "web components",
-      "data visualization",
-      "charts",
-      "graphs",
-      "analytics",
-      "open source",
-      "Lit",
-      "GenAI",
-      "framework-agnostic"
+        "web components",
+        "data visualization",
+        "charts",
+        "graphs",
+        "analytics",
+        "open source",
+        "Lit",
+        "GenAI",
+        "framework-agnostic"
     ],
     "author": "Joseph Axisa",
     "license": "MIT",
     "devDependencies": {
-      "http-server": "^14.1.1",
-      "typescript": "^5.2.2",
-      "highcharts": "^11.2.0"
+        "@rollup/plugin-node-resolve": "^16.0.1",
+        "@rollup/plugin-typescript": "^12.1.4",
+        "highcharts": "^11.2.0",
+        "http-server": "^14.1.1",
+        "rollup": "^4.46.2",
+        "tslib": "^2.8.1",
+        "typescript": "^5.2.2"
     },
     "dependencies": {
-      "lit": "^3.0.0"
+        "lit": "^3.0.0"
     }
-  }
+}

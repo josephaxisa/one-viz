@@ -1,5 +1,5 @@
 import { customElement } from 'lit/decorators.js';
-import type * as Highcharts from 'highcharts';
+import type { Options, PointClickEventObject } from 'highcharts';
 import { AbstractChart } from '../AbstractChart/AbstractChart';
 import { css } from 'lit';
 
@@ -12,27 +12,15 @@ export class OneVizLineChart extends AbstractChart {
     }
   `;
 
-  createChart() {
-    if (this.errorMessage) {
-        if (this.chart) {
-            this.chart.destroy();
-            this.chart = undefined;
-        }
-        return;
-    }
-
-    if (!this.data || !this.xField || !this.yField) {
-      return;
+  getChartOptions(): Options | null {
+    if (this.data.length === 0) {
+        return null;
     }
 
     const categories = this.data.map((item) => String(item[this.xField]));
     const seriesData = this.data.map((item) => Number(item[this.yField]));
 
-    if (this.chart) {
-        this.chart.destroy();
-    }
-
-    this.chart = window.Highcharts.chart(this.shadowRoot!.getElementById('chart')!, {
+    return {
       chart: {
         type: 'line'
       },
@@ -58,7 +46,7 @@ export class OneVizLineChart extends AbstractChart {
         color: 'var(--oneviz-line-color)',
           point: {
               events: {
-                  click: (event: Highcharts.PointClickEventObject) => {
+                  click: (event: PointClickEventObject) => {
                       this.dispatchEvent(new CustomEvent('oneviz-line-click', {
                           detail: {
                               x: event.point.category,
@@ -78,6 +66,6 @@ export class OneVizLineChart extends AbstractChart {
         tooltip: { 
             pointFormat: '<b>{point.y}</b><br/>{point.category}',
         }
-    });
+    };
   }
 }

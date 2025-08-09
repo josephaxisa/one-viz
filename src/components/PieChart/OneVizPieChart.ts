@@ -1,5 +1,5 @@
 import { customElement, property } from 'lit/decorators.js';
-import type * as Highcharts from 'highcharts';
+import type { Options } from 'highcharts';
 import { AbstractChart } from '../AbstractChart/AbstractChart';
 import { css } from 'lit';
 
@@ -9,44 +9,21 @@ export class OneVizPieChart extends AbstractChart {
 
   static override styles = css`
     :host {
-      /* Specific styles for pie chart can go here if needed */
-      /* For example, you might want to ensure it's displayed as a block */
       display: block;
     }
   `;
 
-  // For a pie chart, xField represents the 'name' or 'label' of the slice,
-  // and yField represents the 'value' or 'y' of the slice.
-
-  override createChart() {
-    if (this.errorMessage) {
-        if (this.chart) {
-            this.chart.destroy();
-            this.chart = undefined;
-        }
-        return;
-    }
-    
-    if (!this.data || !this.xField || !this.yField) {
-      const chartContainer = this.shadowRoot?.getElementById('chart');
-      if (chartContainer) {
-        chartContainer.innerHTML = ''; // Clear previous error messages
-      }
-      return;
+  getChartOptions(): Options | null {
+    if (this.data.length === 0) {
+        return null;
     }
 
-    // Transform the generic data into Highcharts pie series format
-    // [{ name: 'Slice 1', y: value1 }, { name: 'Slice 2', y: value2 }, ...]
     const seriesData = this.data.map((item) => ({
-      name: String(item[this.xField as keyof typeof item]), // Use xField for the slice name
-      y: Number(item[this.yField as keyof typeof item]),   // Use yField for the slice value
+      name: String(item[this.xField as keyof typeof item]),
+      y: Number(item[this.yField as keyof typeof item]),
     }));
 
-    if (this.chart) {
-      this.chart.destroy();
-    }
-
-    const chartOptions: Highcharts.Options = {
+    return {
       chart: {
         type: 'pie',
         plotShadow: false,
@@ -60,7 +37,6 @@ export class OneVizPieChart extends AbstractChart {
         }
       },
       tooltip: {
-        // Basic tooltip, will be enhanced in a later commit
         pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
       },
       accessibility: {
@@ -100,31 +76,6 @@ export class OneVizPieChart extends AbstractChart {
         }
       }
     };
-
-    // Render the chart
-    const chartContainer = this.shadowRoot?.getElementById('chart');
-    if (chartContainer) {
-      this.chart = window.Highcharts.chart(chartContainer, chartOptions);
-    } else {
-      console.error('Chart container not found for OneVizPieChart.');
-    }
-  }
-
-  // `requestUpdate` is called by Lit when properties change.
-  // We override it to ensure `createChart` is called after updates.
-  override updated(changedProperties: Map<string | number | symbol, unknown>): void {
-    super.updated(changedProperties); // Call super.updated() for AbstractChart logic
-
-    // Check if relevant properties have changed to decide if chart needs recreation
-    if (
-      changedProperties.has('data') ||
-      changedProperties.has('xField') ||
-      changedProperties.has('yField') ||
-      changedProperties.has('title') ||
-      changedProperties.has('showLegend')
-    ) {
-      this.createChart();
-    }
   }
 }
 
