@@ -1,5 +1,5 @@
 import { customElement } from 'lit/decorators.js';
-import * as Highcharts from 'highcharts';
+import type * as Highcharts from 'highcharts';
 import { AbstractChart } from '../AbstractChart/AbstractChart';
 import { css } from 'lit';
 
@@ -24,7 +24,7 @@ export class OneVizLineChart extends AbstractChart {
         this.chart.destroy();
     }
 
-    this.chart = Highcharts.chart(this.shadowRoot!.getElementById('chart')!, {
+    this.chart = window.Highcharts.chart(this.shadowRoot!.getElementById('chart')!, {
       chart: {
         type: 'line'
       },

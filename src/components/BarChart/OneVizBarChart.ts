@@ -1,5 +1,5 @@
 import { customElement } from 'lit/decorators.js';
-import * as Highcharts from 'highcharts';
+import type * as Highcharts from 'highcharts';
 import { AbstractChart } from '../AbstractChart/AbstractChart';
 
 @customElement('oneviz-barchart')
@@ -17,7 +17,7 @@ export class OneVizBarChart extends AbstractChart {
       this.chart.destroy();
     }
 
-    this.chart = Highcharts.chart(this.shadowRoot!.querySelector('#chart') as HTMLElement, {
+    this.chart = window.Highcharts.chart(this.shadowRoot!.querySelector('#chart') as HTMLElement, {
       chart: {
         type: 'bar'
       },

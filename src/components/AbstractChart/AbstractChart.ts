@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { property } from 'lit/decorators.js';
-import * as Highcharts from 'highcharts';
+import type * as Highcharts from 'highcharts';
+import { loadHighcharts } from '../../utils/cdn-loader';
 
 export interface ChartData {
     [key: string]: string | number;
@@ -15,6 +16,12 @@ export abstract class AbstractChart extends LitElement {
     @property({ type: Array, attribute: false }) data: ChartData[] = [];
 
     protected chart: Highcharts.Chart | undefined;
+    private highchartsLoaded: Promise<void>;
+
+    constructor() {
+        super();
+        this.highchartsLoaded = loadHighcharts();
+    }
 
     static styles = css`
      :host {
@@ -36,15 +43,20 @@ export abstract class AbstractChart extends LitElement {
     `;
 
     async firstUpdated() {
-        if (this.dataUrl) {
-            await this.fetchData();
+        try {
+            await this.highchartsLoaded;
+            if (this.dataUrl) {
+                await this.fetchData();
+            }
+            this.createChart();
+        } catch (error) {
+            console.error("Failed to load Highcharts or fetch data:", error);
         }
-        this.createChart();
     }
 
     updated(changedProperties: Map<string | number | symbol, unknown>) {
         if (changedProperties.has('data') || changedProperties.has('xField') || changedProperties.has('yField') || changedProperties.has('title')) {
-            this.createChart();
+            this.highchartsLoaded.then(() => this.createChart());
         }
     }
 

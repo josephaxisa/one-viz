@@ -1,5 +1,5 @@
 import { customElement, property } from 'lit/decorators.js';
-import * as Highcharts from 'highcharts';
+import type * as Highcharts from 'highcharts';
 import { AbstractChart } from '../AbstractChart/AbstractChart';
 import { css } from 'lit';
 
@@ -102,7 +102,7 @@ export class OneVizPieChart extends AbstractChart {
     // Render the chart
     const chartContainer = this.shadowRoot?.getElementById('chart');
     if (chartContainer) {
-      this.chart = Highcharts.chart(chartContainer, chartOptions);
+      this.chart = window.Highcharts.chart(chartContainer, chartOptions);
     } else {
       console.error('Chart container not found for OneVizPieChart.');
     }
