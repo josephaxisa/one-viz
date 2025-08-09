@@ -35,7 +35,22 @@ export class OneVizBarChart extends AbstractChart {
         type: 'bar',
         name: this.yField,
         data: seriesData,
-        showInLegend: false
+        showInLegend: false,
+        point: {
+            events: {
+                click: (event: any) => {
+                    this.dispatchEvent(new CustomEvent('oneviz-bar-click', {
+                        detail: {
+                            category: event.point.category,
+                            value: event.point.y,
+                            originalEvent: event
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            }
+        }
       }]
     };
   }

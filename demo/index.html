@@ -44,6 +44,11 @@
         </div>
     </div>
 
+    <h2>Event Log</h2>
+    <div class="container">
+        <pre id="event-log" style="background-color: #e9ecef; padding: 1em; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word;"></pre>
+    </div>
+
     <script type="module">
         // Use a dynamic import with a cache-busting query string to load the bundle.
         import(`/dist/one-viz.bundle.js?v=${Date.now()}`);
@@ -61,15 +66,31 @@
           ]
         };
 
+        const eventLog = document.getElementById('event-log');
+        function logEvent(event) {
+            const { type, detail } = event;
+            // We remove originalEvent to avoid circular references when stringifying
+            const detailWithoutEvent = { ...detail, originalEvent: '[Highcharts Event]' };
+            eventLog.textContent = `Event: ${type}\n\n${JSON.stringify(detailWithoutEvent, null, 2)}\n\n${eventLog.textContent}`;
+        }
+
         // Wait for the components to be defined, then set their data properties.
         Promise.all([
             customElements.whenDefined('oneviz-barchart'),
             customElements.whenDefined('oneviz-piechart'),
             customElements.whenDefined('oneviz-linechart')
         ]).then(() => {
-            document.getElementById('bar-chart').data = demoData.sales;
-            document.getElementById('pie-chart').data = demoData.traffic;
-            document.getElementById('line-chart').data = demoData.sales;
+            const barChart = document.getElementById('bar-chart');
+            const pieChart = document.getElementById('pie-chart');
+            const lineChart = document.getElementById('line-chart');
+
+            barChart.data = demoData.sales;
+            pieChart.data = demoData.traffic;
+            lineChart.data = demoData.sales;
+
+            barChart.addEventListener('oneviz-bar-click', logEvent);
+            pieChart.addEventListener('oneviz-pie-click', logEvent);
+            lineChart.addEventListener('oneviz-line-click', logEvent);
         });
     </script>
 </body>

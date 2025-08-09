@@ -43,7 +43,22 @@ export class OneVizLineChart extends AbstractChart {
         name: this.yField,
         data: seriesData,
         color: 'var(--oneviz-line-color)',
-        showInLegend: false
+        showInLegend: false,
+        point: {
+            events: {
+                click: (event: any) => {
+                    this.dispatchEvent(new CustomEvent('oneviz-line-click', {
+                        detail: {
+                            category: event.point.category,
+                            value: event.point.y,
+                            originalEvent: event
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            }
+        }
       }]
     };
   }

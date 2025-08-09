@@ -25,7 +25,22 @@ export class OneVizPieChart extends AbstractChart {
       series: [{
         type: 'pie',
         name: this.yField,
-        data: seriesData
+        data: seriesData,
+        point: {
+            events: {
+                click: (event: any) => {
+                    this.dispatchEvent(new CustomEvent('oneviz-pie-click', {
+                        detail: {
+                            name: event.point.name,
+                            value: event.point.y,
+                            originalEvent: event
+                        },
+                        bubbles: true,
+                        composed: true
+                    }));
+                }
+            }
+        }
       }]
     };
   }
