@@ -15,6 +15,20 @@
 
 One-viz aims to democratize data visualization, making it accessible to everyone, regardless of their technical expertise.  By combining the flexibility of web components with the power of AI, One-viz will empower users to gain deeper insights from their data and make better decisions.
 
+**Why One-viz?**
+
+While powerful libraries like Highcharts or D3.js provide the rendering engine for our charts, One-viz is not just a wrapper. It's an abstraction layer designed to provide a superior developer experience and a more powerful, future-proof feature set.
+
+| Feature                       | Using Highcharts Directly                                   | Using One-viz                                                              |
+| ----------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------- |
+| **Simplicity**                | Requires complex JavaScript configuration objects.          | Simple, declarative HTML tags (`<oneviz-barchart>`).                        |
+| **Framework Integration**     | Requires framework-specific wrappers (e.g., `highcharts-react`). | Works natively in any framework (React, Vue, etc.) or no framework at all. |
+| **Dependency Management**     | Developer must install, import, and bundle the library.     | Zero-configuration. Automatically loads dependencies from a CDN.           |
+| **API**                       | Vast and complex API, can be overwhelming.                  | Simplified, consistent, and opinionated API across all chart types.        |
+| **AI-Powered Analytics**      | Not available.                                              | **Core future feature.** Enables natural language interaction with data.   |
+
+In short, **One-viz offers ease of use, standardization, and a future-proof path to AI-powered analytics, not just chart rendering.** It allows developers to work at a higher level of abstraction so they can build data-driven applications faster and more consistently.
+
 **Current Status:**
 
 This project is currently under active development.  The initial phase focuses on building a core set of framework-agnostic web components for common chart types (bar, line, pie, scatter, etc.).
@@ -105,6 +119,84 @@ Note: For CDN usage please refer to the documentation.
     export default MyReactComponent;
 
     ```
+
+<details>
+<summary><b>Click to see a comparison with a direct Highcharts implementation</b></summary>
+
+The example above is simple and declarative. To achieve the same result using the standard `highcharts-react-official` library, you would need significantly more boilerplate code to manually construct the complex Highcharts options object.
+
+This is the equivalent code using the Highcharts React wrapper:
+
+```jsx
+// The Highcharts Equivalent
+import React, { useState, useEffect } from 'react';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import HC_bar from 'highcharts/modules/bar';
+
+// Initialize the bar module
+HC_bar(Highcharts);
+
+function MyHighchartsComponent() {
+  const [chartOptions, setChartOptions] = useState({
+    chart: {
+      type: 'bar'
+    },
+    title: {
+      text: 'My Awesome Bar Chart (Highcharts)'
+    },
+    xAxis: {
+      categories: [],
+      title: {
+        text: 'category'
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'value'
+      }
+    },
+    series: [{
+      name: 'value',
+      data: []
+    }]
+  });
+
+  useEffect(() => {
+    // Fetch or generate your data here
+    const data = [
+      { category: 'A', value: 10 },
+      { category: 'B', value: 15 },
+      { category: 'C', value: 7 },
+      { category: 'D', value: 12 }
+    ];
+
+    // Manually transform data and update the complex options object
+    setChartOptions({
+      xAxis: {
+        categories: data.map(item => item.category)
+      },
+      series: [{
+        name: 'value',
+        data: data.map(item => item.value)
+      }]
+    });
+  }, []);
+
+  return (
+    <HighchartsReact
+      highcharts={Highcharts}
+      options={chartOptions}
+    />
+  );
+}
+
+export default MyHighchartsComponent;
+```
+
+As you can see, One-viz handles the data transformation and chart configuration for you, allowing you to focus on your application logic instead of the intricacies of a specific charting library.
+
+</details>
 
 **Roadmap:**
 
