@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit';
-import { property } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import type * as Highcharts from 'highcharts';
 import { loadHighcharts } from '../../utils/cdn-loader';
 
@@ -15,6 +15,9 @@ export abstract class AbstractChart extends LitElement {
     @property({ type: String }) title: string = '';
     @property({ type: Array, attribute: false }) data: ChartData[] = [];
 
+    @state()
+    protected errorMessage: string | null = null;
+
     protected chart: Highcharts.Chart | undefined;
     private highchartsLoaded: Promise<void>;
 
@@ -29,6 +32,7 @@ export abstract class AbstractChart extends LitElement {
       width: 100%;
       height: 400px;
       font-family: sans-serif;
+      position: relative; /* For centering the error message */
     }
     #chart {
       width: 100%;
@@ -40,6 +44,18 @@ export abstract class AbstractChart extends LitElement {
       font-weight: bold;
       margin-bottom: 0.5em;
     }
+    .error-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 1em;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        color: #721c24;
+        text-align: center;
+    }
     `;
 
     async firstUpdated() {
@@ -47,17 +63,27 @@ export abstract class AbstractChart extends LitElement {
             await this.highchartsLoaded;
             if (this.dataUrl) {
                 await this.fetchData();
+            } else {
+                // If there's no URL, the data must have been passed directly.
+                // We still need to trigger an update.
+                this.requestUpdate();
             }
-            this.createChart();
         } catch (error) {
-            console.error("Failed to load Highcharts or fetch data:", error);
+            this.errorMessage = "Error: Could not load Highcharts library from CDN.";
+            console.error(error);
         }
     }
 
     updated(changedProperties: Map<string | number | symbol, unknown>) {
-        if (changedProperties.has('data') || changedProperties.has('xField') || changedProperties.has('yField') || changedProperties.has('title')) {
-            this.highchartsLoaded.then(() => this.createChart());
-        }
+        // Defer chart creation until Highcharts is loaded
+        this.highchartsLoaded.then(() => {
+            if (this.validateData()) {
+                this.createChart();
+            }
+        }).catch(error => {
+            this.errorMessage = "Error: Could not load Highcharts library from CDN.";
+            console.error(error);
+        });
     }
 
     async fetchData() {
@@ -68,9 +94,46 @@ export abstract class AbstractChart extends LitElement {
             }
             this.data = await response.json();
         } catch (error) {
-            console.error('Error fetching data:', error);
+            this.errorMessage = "Error: Failed to fetch or parse data from URL.";
+            console.error(error);
             this.data = [];
         }
+    }
+
+    protected validateData(): boolean {
+        this.errorMessage = null; // Reset error on every validation attempt
+
+        if (!this.data) {
+            // This case is unlikely if data is initialized to [], but it's good practice.
+            this.errorMessage = "Error: Data has not been provided.";
+            return false;
+        }
+        if (!Array.isArray(this.data)) {
+            this.errorMessage = "Error: The provided data is not an array.";
+            return false;
+        }
+        if (this.data.length === 0) {
+            // Not strictly an error, but we can't draw a chart.
+            // We can choose to show a message or just an empty chart.
+            // For now, we'll allow an empty chart to be rendered.
+            return true;
+        }
+        if (!this.xField || !this.yField) {
+            this.errorMessage = "Error: 'x-field' and 'y-field' attributes are required.";
+            return false;
+        }
+
+        const firstItem = this.data[0];
+        if (!(this.xField in firstItem)) {
+            this.errorMessage = `Error: The specified x-field "${this.xField}" does not exist in the data.`;
+            return false;
+        }
+        if (!(this.yField in firstItem)) {
+            this.errorMessage = `Error: The specified y-field "${this.yField}" does not exist in the data.`;
+            return false;
+        }
+
+        return true;
     }
 
     abstract createChart(): void;
@@ -78,7 +141,9 @@ export abstract class AbstractChart extends LitElement {
     render() {
         return html`
       <div class="chart-title">${this.title}</div>
-      <div id="chart"></div>
+      <div id="chart">
+        ${this.errorMessage ? html`<div class="error-message">${this.errorMessage}</div>` : ''}
+      </div>
     `;
     }
 

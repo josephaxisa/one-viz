@@ -13,7 +13,15 @@ export class OneVizLineChart extends AbstractChart {
   `;
 
   createChart() {
-    if (!this.data || this.data.length === 0 || !this.xField || !this.yField) {
+    if (this.errorMessage) {
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = undefined;
+        }
+        return;
+    }
+
+    if (!this.data || !this.xField || !this.yField) {
       return;
     }
 

@@ -19,16 +19,18 @@ export class OneVizPieChart extends AbstractChart {
   // and yField represents the 'value' or 'y' of the slice.
 
   override createChart() {
-    // Ensure data and necessary fields are provided
-    if (!this.data || this.data.length === 0 || !this.xField || !this.yField) {
-      // Optionally, render a message or clear the chart if it exists
-      if (this.chart) {
-        this.chart.destroy();
-        this.chart = undefined;
-      }
+    if (this.errorMessage) {
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = undefined;
+        }
+        return;
+    }
+    
+    if (!this.data || !this.xField || !this.yField) {
       const chartContainer = this.shadowRoot?.getElementById('chart');
       if (chartContainer) {
-        chartContainer.innerHTML = 'No data or fields configured for Pie Chart.';
+        chartContainer.innerHTML = ''; // Clear previous error messages
       }
       return;
     }

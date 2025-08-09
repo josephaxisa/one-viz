@@ -6,8 +6,16 @@ import { AbstractChart } from '../AbstractChart/AbstractChart';
 export class OneVizBarChart extends AbstractChart {
   
   createChart() {
-    if (!this.data || this.data.length === 0 || !this.xField || !this.yField) {
-      return; // Don't create a chart if data or fields are missing
+    if (this.errorMessage) {
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = undefined;
+        }
+        return;
+    }
+    
+    if (!this.data || !this.xField || !this.yField) {
+      return; 
     }
 
     const categories = this.data.map((item) => String(item[this.xField]));
