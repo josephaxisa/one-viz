@@ -2,8 +2,8 @@
     "name": "one-viz",
     "version": "0.0.1",
     "description": "Interactive Web Components for Data Visualization",
-    "main": "dist/one-viz.js",
-    "module": "dist/one-viz.js",
+    "main": "dist/one-viz.bundle.js",
+    "module": "dist/one-viz.bundle.js",
     "types": "dist/components/index.d.ts",
     "scripts": {
         "build": "rollup -c",

@@ -5,31 +5,17 @@
     <meta charset="UTF-8">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f8f9fa;
-            color: #212529;
             margin: 0;
             padding: 1em;
         }
-        header {
-            text-align: center;
-            margin-bottom: 2em;
-        }
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 0.1em;
-        }
-        h2 {
-            font-size: 1.8em;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 0.5em;
-            margin-top: 2em;
-        }
+        header { text-align: center; margin-bottom: 2em; }
+        h1 { font-size: 2.5em; }
         .container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 2em;
-            padding: 0 1em;
         }
         .chart-wrapper {
             background-color: #ffffff;
@@ -37,10 +23,6 @@
             border-radius: 8px;
             padding: 1.5em;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            min-height: 400px;
-        }
-        p {
-            line-height: 1.6;
         }
     </style>
 </head>
@@ -48,74 +30,47 @@
 
     <header>
         <h1>One-viz Component Demo</h1>
-        <p>Showcasing the core components and robust error handling of the One-viz library.</p>
     </header>
 
-    <h2>Successful Chart Rendering</h2>
     <div class="container">
         <div class="chart-wrapper">
             <oneviz-barchart id="bar-chart" x-field="month" y-field="revenue" title="Monthly Revenue"></oneviz-barchart>
         </div>
         <div class="chart-wrapper">
-            <oneviz-linechart id="line-chart" x-field="month" y-field="profit" title="Monthly Profit"></oneviz-linechart>
-        </div>
-        <div class="chart-wrapper">
             <oneviz-piechart id="pie-chart" x-field="source" y-field="users" title="Website Traffic Sources"></oneviz-piechart>
         </div>
-    </div>
-
-    <h2>Data Validation & Error Handling</h2>
-    <div class="container">
         <div class="chart-wrapper">
-            <oneviz-barchart id="error-chart-1" x-field="category" y-field="value" title="Error: Malformed Data"></oneviz-barchart>
-        </div>
-        <div class="chart-wrapper">
-            <oneviz-linechart id="error-chart-2" x-field="non_existent_field" y-field="value" title="Error: Invalid X-Field"></oneviz-linechart>
-        </div>
-        <div class="chart-wrapper">
-            <oneviz-piechart data-url="/demo/non_existent_data.json" x-field="source" y-field="users" title="Error: Data URL Not Found"></oneviz-piechart>
+            <oneviz-linechart id="line-chart" x-field="month" y-field="profit" title="Monthly Profit"></oneviz-linechart>
         </div>
     </div>
 
     <script type="module">
-        // Add a cache-busting query parameter to the import URL
-        const cacheBuster = `?v=${Date.now()}`;
-        import(`/dist/one-viz.js${cacheBuster}`);
+        // Use a dynamic import with a cache-busting query string to load the bundle.
+        import(`/dist/one-viz.bundle.js?v=${Date.now()}`);
 
-        async function setupCharts() {
-            try {
-                const response = await fetch('/demo/data.json');
-                const data = await response.json();
+        const demoData = {
+          sales: [
+            { "month": "Jan", "revenue": 15000, "profit": 6000 },
+            { "month": "Feb", "revenue": 18000, "profit": 7500 },
+            { "month": "Mar", "revenue": 22000, "profit": 9000 },
+          ],
+          traffic: [
+            { "source": "Organic", "users": 2500 },
+            { "source": "Direct", "users": 1800 },
+            { "source": "Referral", "users": 1200 },
+          ]
+        };
 
-                // --- Success Cases ---
-                const barChart = document.getElementById('bar-chart');
-                barChart.data = data.sales_by_month;
-
-                const lineChart = document.getElementById('line-chart');
-                lineChart.data = data.sales_by_month;
-
-                const pieChart = document.getElementById('pie-chart');
-                pieChart.data = data.traffic_sources;
-
-                // --- Error Cases ---
-                const errorChart1 = document.getElementById('error-chart-1');
-                errorChart1.data = data.malformed_data; // Will trigger y-field error
-
-                const errorChart2 = document.getElementById('error-chart-2');
-                errorChart2.data = data.sales_by_month; // Will trigger x-field error
-
-            } catch (error) {
-                console.error("Failed to load demo data:", error);
-            }
-        }
-
-        // Wait for all components to be defined before setting data
+        // Wait for the components to be defined, then set their data properties.
         Promise.all([
             customElements.whenDefined('oneviz-barchart'),
-            customElements.whenDefined('oneviz-linechart'),
-            customElements.whenDefined('oneviz-piechart')
-        ]).then(setupCharts);
-
+            customElements.whenDefined('oneviz-piechart'),
+            customElements.whenDefined('oneviz-linechart')
+        ]).then(() => {
+            document.getElementById('bar-chart').data = demoData.sales;
+            document.getElementById('pie-chart').data = demoData.traffic;
+            document.getElementById('line-chart').data = demoData.sales;
+        });
     </script>
 </body>
 </html>

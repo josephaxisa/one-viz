@@ -4,7 +4,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 export default {
   input: 'src/components/index.ts', // The entry point of our library
   output: {
-    file: 'dist/one-viz.js', // The bundled output file
+    file: 'dist/one-viz.bundle.js', // The bundled output file
     format: 'esm', // ES Module format, suitable for modern browsers
     sourcemap: true,
   },

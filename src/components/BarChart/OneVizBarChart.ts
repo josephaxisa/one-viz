@@ -6,19 +6,19 @@ import { AbstractChart } from '../AbstractChart/AbstractChart';
 export class OneVizBarChart extends AbstractChart {
   
   getChartOptions(): Options | null {
-    if (this.data.length === 0) {
-        return null; // Don't render an empty chart
+    if (!this.data || this.data.length === 0) {
+        return null;
     }
 
-    const categories = this.data.map((item) => String(item[this.xField]));
-    const seriesData = this.data.map((item) => item[this.yField]);
+    const seriesData = this.data.map((item: any) => item[this.yField]);
+    const categories = this.data.map((item: any) => item[this.xField]);
 
     return {
       chart: {
         type: 'bar'
       },
       title: {
-        text: this.title
+        text: '' // Title is handled by the component's template
       },
       xAxis: {
         categories: categories,
@@ -31,15 +31,11 @@ export class OneVizBarChart extends AbstractChart {
           text: this.yField
         }
       },
-      tooltip: {
-        formatter: function() {
-          return `<b>${this.x}</b><br/>${this.series.name}: ${this.y}`; 
-        }
-      },
       series: [{
         type: 'bar',
         name: this.yField,
-        data: seriesData
+        data: seriesData,
+        showInLegend: false
       }]
     };
   }

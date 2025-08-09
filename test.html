@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Corrected Isolated One-viz Test</title>
+    <meta charset="UTF-8">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script type="module">
+        import { LitElement, html, css } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/core/lit-core.min.js';
+
+        // --- Corrected AbstractChart Definition ---
+        class CorrectedAbstractChart extends LitElement {
+            // Define properties using the static properties block, which is standard JavaScript.
+            static properties = {
+                title: { type: String },
+                data: { type: Array },
+                xField: { type: String, attribute: 'x-field' },
+                yField: { type: String, attribute: 'y-field' },
+            };
+
+            chart = null; // Instance variable to hold the chart
+
+            constructor() {
+                super();
+                this.data = [];
+            }
+
+            static styles = css`
+                :host { display: block; }
+                .chart-title { text-align: center; font-size: 1.2em; font-weight: bold; }
+            `;
+
+            updated(changedProperties) {
+                if (changedProperties.has('data')) {
+                    this.createChart();
+                }
+            }
+
+            createChart() {
+                if (!this.data || this.data.length === 0) {
+                    return;
+                }
+                const container = this.shadowRoot.querySelector('#chart-container');
+                if (!container) {
+                    console.error('Chart container not found!');
+                    return;
+                }
+                const options = this.getChartOptions();
+                this.chart = window.Highcharts.chart(container, options);
+            }
+
+            getChartOptions() {
+                throw new Error('getChartOptions() must be implemented by a subclass.');
+            }
+
+            render() {
+                return html`
+                    <div class="chart-title">${this.title}</div>
+                    <div id="chart-container" style="width: 100%; height: 400px;"></div>
+                `;
+            }
+        }
+
+        // --- Corrected OneVizBarChart Definition ---
+        class CorrectedBarChart extends CorrectedAbstractChart {
+            getChartOptions() {
+                const seriesData = this.data.map(item => item[this.yField]);
+                const categories = this.data.map(item => item[this.xField]);
+                return {
+                    chart: { type: 'bar' },
+                    title: { text: '' },
+                    xAxis: { categories, title: { text: this.xField } },
+                    yAxis: { title: { text: this.yField } },
+                    series: [{ name: this.yField, data: seriesData, showInLegend: false }]
+                };
+            }
+        }
+        customElements.define('oneviz-barchart-final', CorrectedBarChart);
+
+        // --- Corrected OneVizPieChart Definition ---
+        class CorrectedPieChart extends CorrectedAbstractChart {
+            getChartOptions() {
+                const seriesData = this.data.map(item => ({ name: item[this.xField], y: item[this.yField] }));
+                return {
+                    chart: { type: 'pie' },
+                    title: { text: '' },
+                    series: [{ name: this.yField, data: seriesData }]
+                };
+            }
+        }
+        customElements.define('oneviz-piechart-final', CorrectedPieChart);
+    </script>
+</head>
+<body>
+
+    <h1>Final Isolated Test</h1>
+    <p>This test uses the corrected component lifecycle logic and standard JavaScript syntax.</p>
+
+    <div style="display: flex; gap: 2em;">
+        <div style="width: 50%; border: 1px solid #ccc; padding: 1em;">
+            <oneviz-barchart-final id="bar-chart" x-field="month" y-field="revenue" title="Monthly Revenue"></oneviz-barchart-final>
+        </div>
+        <div style="width: 50%; border: 1px solid #ccc; padding: 1em;">
+            <oneviz-piechart-final id="pie-chart" x-field="source" y-field="users" title="Traffic Sources"></oneviz-piechart-final>
+        </div>
+    </div>
+
+    <script type="module">
+        const testData = {
+            sales: [
+                { month: 'Jan', revenue: 150 }, { month: 'Feb', revenue: 180 }, { month: 'Mar', revenue: 220 }
+            ],
+            traffic: [
+                { source: 'Organic', users: 250 }, { source: 'Direct', users: 180 }, { source: 'Referral', users: 120 }
+            ]
+        };
+
+        document.getElementById('bar-chart').data = testData.sales;
+        document.getElementById('pie-chart').data = testData.traffic;
+    </script>
+
+</body>
+</html>

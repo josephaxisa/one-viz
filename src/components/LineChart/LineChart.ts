@@ -1,5 +1,5 @@
 import { customElement } from 'lit/decorators.js';
-import type { Options, PointClickEventObject } from 'highcharts';
+import type { Options } from 'highcharts';
 import { AbstractChart } from '../AbstractChart/AbstractChart';
 import { css } from 'lit';
 
@@ -13,19 +13,19 @@ export class OneVizLineChart extends AbstractChart {
   `;
 
   getChartOptions(): Options | null {
-    if (this.data.length === 0) {
+    if (!this.data || this.data.length === 0) {
         return null;
     }
 
-    const categories = this.data.map((item) => String(item[this.xField]));
-    const seriesData = this.data.map((item) => Number(item[this.yField]));
+    const seriesData = this.data.map((item: any) => item[this.yField]);
+    const categories = this.data.map((item: any) => item[this.xField]);
 
     return {
       chart: {
         type: 'line'
       },
       title: {
-        text: this.title
+        text: '' // Title is handled by the component's template
       },
       xAxis: {
         categories: categories,
@@ -36,36 +36,15 @@ export class OneVizLineChart extends AbstractChart {
       yAxis: {
         title: {
           text: this.yField
-        },
-        min: 0,
+        }
       },
       series: [{
         type: 'line',
         name: this.yField,
         data: seriesData,
         color: 'var(--oneviz-line-color)',
-          point: {
-              events: {
-                  click: (event: PointClickEventObject) => {
-                      this.dispatchEvent(new CustomEvent('oneviz-line-click', {
-                          detail: {
-                              x: event.point.category,
-                              y: event.point.y,
-                              originalEvent: event
-                          },
-                          bubbles: true,
-                          composed: true
-                      }));
-                  }
-              }
-          }
-      }],
-      credits: {
-        enabled: false
-      },
-        tooltip: { 
-            pointFormat: '<b>{point.y}</b><br/>{point.category}',
-        }
+        showInLegend: false
+      }]
     };
   }
 }
