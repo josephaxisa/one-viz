@@ -1,22 +1,16 @@
-import { customElement, property } from 'lit/decorators.js';
+import { customElement } from 'lit/decorators.js';
 import * as Highcharts from 'highcharts';
-import { AbstractChart, ChartData } from '../AbstractChart'; 
-import { html, css } from 'lit';
+import { AbstractChart } from '../AbstractChart/AbstractChart';
+import { css } from 'lit';
 
 @customElement('oneviz-linechart')
-export class OneVizLineChart extends AbstractChart { 
+export class OneVizLineChart extends AbstractChart {
 
-  static styles = [
-    AbstractChart.styles,
-    css`
-      /* Line-chart specific styles here (if any) */
-      :host {
-        --oneviz-line-color: #007bff;
-      }
-    `
-  ];
-    @property({ type: String }) override title: string = 'OneViz Line Chart';
-
+  static styles = css`
+    :host {
+      --oneviz-line-color: #007bff;
+    }
+  `;
 
   createChart() {
     if (!this.data || this.data.length === 0 || !this.xField || !this.yField) {
@@ -29,7 +23,6 @@ export class OneVizLineChart extends AbstractChart {
     if (this.chart) {
         this.chart.destroy();
     }
-
 
     this.chart = Highcharts.chart(this.shadowRoot!.getElementById('chart')!, {
       chart: {

@@ -1,19 +1,19 @@
-import { AbstractChart } from './AbstractChart'; 
+import { customElement, property } from 'lit/decorators.js';
+import * as Highcharts from 'highcharts';
+import { AbstractChart } from '../AbstractChart/AbstractChart';
+import { css } from 'lit';
 
 @customElement('oneviz-piechart')
 export class OneVizPieChart extends AbstractChart {
-  static override styles = [
-    AbstractChart.styles,
-    css`
-      :host {
-        /* Specific styles for pie chart can go here if needed */
-        /* For example, you might want to ensure it's displayed as a block */
-        display: block; 
-      }
-    `,
-  ];
+  @property({ type: Boolean, attribute: 'show-legend'}) showLegend: boolean = true;
 
-  @property({ type: String }) override title: string = 'OneViz Pie Chart';
+  static override styles = css`
+    :host {
+      /* Specific styles for pie chart can go here if needed */
+      /* For example, you might want to ensure it's displayed as a block */
+      display: block;
+    }
+  `;
 
   // For a pie chart, xField represents the 'name' or 'label' of the slice,
   // and yField represents the 'value' or 'y' of the slice.
@@ -77,22 +77,22 @@ export class OneVizPieChart extends AbstractChart {
                 color: 'var(--oneviz-chart-datalabel-color, #333333)',
             }
           },
-          showInLegend: this.showLegend !== undefined ? this.showLegend : true, 
+          showInLegend: this.showLegend,
         },
       },
       series: [
         {
-          type: 'pie', 
-          name: this.yField || 'Value', 
-          colorByPoint: true, 
+          type: 'pie',
+          name: this.yField || 'Value',
+          colorByPoint: true,
           data: seriesData,
-        },
+        } as any,
       ],
       credits: {
         enabled: false,
       },
       legend: {
-        enabled: this.showLegend !== undefined ? this.showLegend : true,
+        enabled: this.showLegend,
         itemStyle: {
             color: 'var(--oneviz-chart-legend-text-color, #333333)',
         }
