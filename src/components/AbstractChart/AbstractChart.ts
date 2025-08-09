@@ -23,13 +23,7 @@ export abstract class AbstractChart extends LitElement {
 
     constructor() {
         super();
-        console.log(`[${this.tagName}] constructor: Initializing component.`);
         this.highchartsLoaded = loadHighcharts();
-        this.highchartsLoaded.then(() => {
-            console.log(`[${this.tagName}] Highcharts loaded successfully.`);
-        }).catch(e => {
-            console.error(`[${this.tagName}] Highcharts failed to load.`, e);
-        });
     }
 
     static styles = css`
@@ -66,7 +60,6 @@ export abstract class AbstractChart extends LitElement {
     `;
 
     async firstUpdated() {
-        console.log(`[${this.tagName}] firstUpdated: Component first rendered.`, { dataUrl: this.dataUrl });
         try {
             await this.highchartsLoaded;
             if (this.dataUrl) {
@@ -74,12 +67,11 @@ export abstract class AbstractChart extends LitElement {
             }
         } catch (error) {
             this.errorMessage = "Error: Could not load Highcharts library from CDN.";
-            console.error(`[${this.tagName}] Error in firstUpdated.`, error);
+            console.error(error);
         }
     }
 
     updated(changedProperties: Map<string | number | symbol, unknown>) {
-        console.log(`[${this.tagName}] updated: Component updated. Changed properties:`, changedProperties);
         this.highchartsLoaded.then(() => {
             if (this.validateData()) {
                 const options = this.getChartOptions();
@@ -90,18 +82,13 @@ export abstract class AbstractChart extends LitElement {
                     const chartContainer = this.shadowRoot!.getElementById('chart');
                     if (chartContainer) {
                         this.chart = window.Highcharts.chart(chartContainer, options);
-                        console.log(`[${this.tagName}] Chart created successfully.`);
-                    } else {
-                        console.error(`[${this.tagName}] Chart container not found!`);
                     }
                 }
             } else {
-                console.warn(`[${this.tagName}] Validation failed. Error: ${this.errorMessage}`);
                 if (this.chart) {
                     this.chart.destroy();
                     this.chart = undefined;
                 }
-                this.requestUpdate();
             }
         }).catch(error => {
             this.errorMessage = "Error: Could not load Highcharts library from CDN.";
@@ -110,14 +97,12 @@ export abstract class AbstractChart extends LitElement {
     }
 
     async fetchData() {
-        console.log(`[${this.tagName}] fetchData: Fetching data from ${this.dataUrl}`);
         try {
             const response = await fetch(this.dataUrl);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             this.data = await response.json();
-            console.log(`[${this.tagName}] fetchData: Data fetched successfully.`, this.data);
         } catch (error) {
             this.errorMessage = "Error: Failed to fetch or parse data from URL.";
             console.error(error);
@@ -126,12 +111,7 @@ export abstract class AbstractChart extends LitElement {
     }
 
     protected validateData(): boolean {
-        console.log(`[${this.tagName}] validateData: Validating data.`, {
-            data: this.data,
-            xField: this.xField,
-            yField: this.yField,
-        });
-        this.errorMessage = null; // Reset error on every validation attempt
+        this.errorMessage = null; 
 
         if (!this.data) {
             this.errorMessage = "Error: Data has not been provided.";
@@ -146,7 +126,6 @@ export abstract class AbstractChart extends LitElement {
             return false;
         }
 
-        // Only check fields if data is not empty
         if (this.data.length > 0) {
             const firstItem = this.data[0];
             if (!(this.xField in firstItem)) {
@@ -159,14 +138,12 @@ export abstract class AbstractChart extends LitElement {
             }
         }
 
-        console.log(`[${this.tagName}] validateData: Validation passed.`);
         return true;
     }
     
     abstract getChartOptions(): Highcharts.Options | null;
 
     render() {
-        console.log(`[${this.tagName}] render: Rendering component. Error message: "${this.errorMessage}"`);
         return html`
       <div class="chart-title">${this.title}</div>
       <div id="chart">
@@ -181,6 +158,5 @@ export abstract class AbstractChart extends LitElement {
              this.chart.destroy();
              this.chart = undefined;
          }
-         console.log(`[${this.tagName}] disconnectedCallback: Component disconnected.`);
      }
 }

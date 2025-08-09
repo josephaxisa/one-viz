@@ -78,7 +78,9 @@
     </div>
 
     <script type="module">
-        import '/dist/one-viz.js';
+        // Add a cache-busting query parameter to the import URL
+        const cacheBuster = `?v=${Date.now()}`;
+        import(`/dist/one-viz.js${cacheBuster}`);
 
         async function setupCharts() {
             try {
@@ -104,7 +106,6 @@
 
             } catch (error) {
                 console.error("Failed to load demo data:", error);
-                // You could display a global error message here
             }
         }
 
