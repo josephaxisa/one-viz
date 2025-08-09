@@ -1,6 +1,21 @@
-[
+{
+  "sales_by_month": [
+    { "month": "Jan", "revenue": 15000, "profit": 6000 },
+    { "month": "Feb", "revenue": 18000, "profit": 7500 },
+    { "month": "Mar", "revenue": 22000, "profit": 9000 },
+    { "month": "Apr", "revenue": 25000, "profit": 11000 },
+    { "month": "May", "revenue": 23000, "profit": 9500 },
+    { "month": "Jun", "revenue": 28000, "profit": 12000 }
+  ],
+  "traffic_sources": [
+    { "source": "Organic Search", "users": 2500 },
+    { "source": "Direct", "users": 1800 },
+    { "source": "Referral", "users": 1200 },
+    { "source": "Social Media", "users": 900 },
+    { "source": "Paid Search", "users": 700 }
+  ],
+  "malformed_data": [
     { "category": "A", "value": 10 },
-    { "category": "B", "value": 15 },
-    { "category": "C", "value": 7 },
-    { "category": "D", "value": 12 }
-]
+    { "category": "B" }
+  ]
+}
