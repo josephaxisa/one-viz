@@ -1,0 +1,11 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+
+# Local development
+PLAN.md
+.idea/
+*.log
+.DS_Store

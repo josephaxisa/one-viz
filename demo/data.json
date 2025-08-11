@@ -17,5 +17,14 @@
   "malformed_data": [
     { "category": "A", "value": 10 },
     { "category": "B" }
+  ],
+  "product_stats": [
+    { "price": 10, "units_sold": 150 },
+    { "price": 15, "units_sold": 120 },
+    { "price": 20, "units_sold": 110 },
+    { "price": 25, "units_sold": 90 },
+    { "price": 30, "units_sold": 80 },
+    { "price": 35, "units_sold": 60 },
+    { "price": 40, "units_sold": 40 }
   ]
 }
