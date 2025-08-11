@@ -12,6 +12,7 @@
         }
         header { text-align: center; margin-bottom: 2em; }
         h1 { font-size: 2.5em; }
+        h2 { font-size: 1.8em; border-bottom: 1px solid #dee2e6; padding-bottom: 0.5em; margin-top: 2em; }
         .container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -24,6 +25,12 @@
             padding: 1.5em;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
+        #dark-theme-chart {
+            /* Dark Theme Example */
+            --oneviz-background-color: #2a2a2b;
+            --oneviz-title-color: #ffffff;
+            --oneviz-axis-label-color: #cccccc;
+        }
     </style>
 </head>
 <body>
@@ -32,6 +39,7 @@
         <h1>One-viz Component Demo</h1>
     </header>
 
+    <h2>Default Theme</h2>
     <div class="container">
         <div class="chart-wrapper">
             <oneviz-barchart id="bar-chart" x-field="month" y-field="revenue" title="Monthly Revenue"></oneviz-barchart>
@@ -39,8 +47,12 @@
         <div class="chart-wrapper">
             <oneviz-piechart id="pie-chart" x-field="source" y-field="users" title="Website Traffic Sources"></oneviz-piechart>
         </div>
-        <div class="chart-wrapper">
-            <oneviz-linechart id="line-chart" x-field="month" y-field="profit" title="Monthly Profit"></oneviz-linechart>
+    </div>
+
+    <h2>Custom Theming Example</h2>
+    <div class="container">
+        <div class="chart-wrapper" id="dark-theme-chart">
+            <oneviz-linechart id="line-chart" x-field="month" y-field="profit" title="Monthly Profit (Dark Theme)"></oneviz-linechart>
         </div>
         <div class="chart-wrapper">
             <oneviz-scatterchart id="scatter-chart" x-field="price" y-field="units_sold" title="Price vs. Units Sold"></oneviz-scatterchart>
@@ -49,7 +61,7 @@
 
     <h2>Event Log</h2>
     <div class="container">
-        <pre id="event-log" style="background-color: #e9ecef; padding: 1em; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word;"></pre>
+        <pre id="event-log" style="background-color: #e9ecef; padding: 1em; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; height: 200px; overflow-y: auto;"></pre>
     </div>
 
     <script type="module">
@@ -72,18 +84,15 @@
             { "price": 15, "units_sold": 120 },
             { "price": 20, "units_sold": 110 },
             { "price": 25, "units_sold": 90 },
-            { "price": 30, "units_sold": 80 },
-            { "price": 35, "units_sold": 60 },
-            { "price": 40, "units_sold": 40 }
+            { "price": 30, "units_sold": 80 }
           ]
         };
 
         const eventLog = document.getElementById('event-log');
         function logEvent(event) {
             const { type, detail } = event;
-            // We remove originalEvent to avoid circular references when stringifying
             const detailWithoutEvent = { ...detail, originalEvent: '[Highcharts Event]' };
-            eventLog.textContent = `Event: ${type}\n\n${JSON.stringify(detailWithoutEvent, null, 2)}\n\n${eventLog.textContent}`;
+            eventLog.textContent = `Event: ${type}\n\n${JSON.stringify(detailWithoutEvent, null, 2)}\n\n` + eventLog.textContent;
         }
 
         // Wait for the components to be defined, then set their data properties.

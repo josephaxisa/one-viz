@@ -5,7 +5,7 @@ import { AbstractChart } from '../AbstractChart/AbstractChart';
 @customElement('oneviz-barchart')
 export class OneVizBarChart extends AbstractChart {
   
-  getChartOptions(): Options | null {
+  getSpecificChartOptions(): Options | null {
     if (!this.data || this.data.length === 0) {
         return null;
     }

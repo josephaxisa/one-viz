@@ -12,7 +12,7 @@ export class OneVizLineChart extends AbstractChart {
     }
   `;
 
-  getChartOptions(): Options | null {
+  getSpecificChartOptions(): Options | null {
     if (!this.data || this.data.length === 0) {
         return null;
     }
