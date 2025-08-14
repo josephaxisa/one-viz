@@ -25,11 +25,22 @@
             padding: 1.5em;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
-        #dark-theme-chart {
-            /* Dark Theme Example */
-            --oneviz-background-color: #2a2a2b;
-            --oneviz-title-color: #ffffff;
-            --oneviz-axis-label-color: #cccccc;
+        .theme-controls {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5em;
+            margin-bottom: 2em;
+        }
+        .theme-controls h3 { margin-top: 0; }
+        .theme-controls .control-group { margin-bottom: 1em; }
+        .theme-controls label { display: block; margin-bottom: 0.5em; font-weight: bold; }
+        .theme-controls input, .theme-controls select {
+            width: 100%;
+            padding: 0.5em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -39,24 +50,38 @@
         <h1>One-viz Component Demo</h1>
     </header>
 
-    <h2>Default Theme</h2>
-    <div class="container">
-        <div class="chart-wrapper">
-            <oneviz-barchart id="bar-chart" x-field="month" y-field="revenue" title="Monthly Revenue"></oneviz-barchart>
+    <div class="theme-controls">
+        <h3>Dynamic Theme Controls</h3>
+        <div class="control-group">
+            <label for="chart-selector">Select Chart to Theme:</label>
+            <select id="chart-selector">
+                <option value="all">All Charts</option>
+                <option value="bar-chart">Bar Chart</option>
+                <option value="pie-chart">Pie Chart</option>
+                <option value="line-chart">Line Chart</option>
+                <option value="scatter-chart">Scatter Chart</option>
+            </select>
         </div>
-        <div class="chart-wrapper">
-            <oneviz-piechart id="pie-chart" x-field="source" y-field="users" title="Website Traffic Sources"></oneviz-piechart>
+        <div class="control-group">
+            <label for="bg-color-picker">Background Color:</label>
+            <input type="color" id="bg-color-picker">
+        </div>
+        <div class="control-group">
+            <label for="title-color-picker">Title Color:</label>
+            <input type="color" id="title-color-picker">
+        </div>
+        <div class="control-group">
+            <label for="axis-label-color-picker">Axis/Label Color:</label>
+            <input type="color" id="axis-label-color-picker">
         </div>
     </div>
 
-    <h2>Custom Theming Example</h2>
+    <h2>Charts</h2>
     <div class="container">
-        <div class="chart-wrapper" id="dark-theme-chart">
-            <oneviz-linechart id="line-chart" x-field="month" y-field="profit" title="Monthly Profit (Dark Theme)"></oneviz-linechart>
-        </div>
-        <div class="chart-wrapper">
-            <oneviz-scatterchart id="scatter-chart" x-field="price" y-field="units_sold" title="Price vs. Units Sold"></oneviz-scatterchart>
-        </div>
+        <div class="chart-wrapper"><oneviz-barchart id="bar-chart" x-field="month" y-field="revenue" title="Monthly Revenue"></oneviz-barchart></div>
+        <div class="chart-wrapper"><oneviz-piechart id="pie-chart" x-field="source" y-field="users" title="Website Traffic Sources"></oneviz-piechart></div>
+        <div class="chart-wrapper"><oneviz-linechart id="line-chart" x-field="month" y-field="profit" title="Monthly Profit"></oneviz-linechart></div>
+        <div class="chart-wrapper"><oneviz-scatterchart id="scatter-chart" x-field="price" y-field="units_sold" title="Price vs. Units Sold"></oneviz-scatterchart></div>
     </div>
 
     <h2>Event Log</h2>
@@ -65,27 +90,12 @@
     </div>
 
     <script type="module">
-        // Use a dynamic import with a cache-busting query string to load the bundle.
         import(`/dist/one-viz.bundle.js?v=${Date.now()}`);
 
         const demoData = {
-          sales: [
-            { "month": "Jan", "revenue": 15000, "profit": 6000 },
-            { "month": "Feb", "revenue": 18000, "profit": 7500 },
-            { "month": "Mar", "revenue": 22000, "profit": 9000 }
-          ],
-          traffic: [
-            { "source": "Organic", "users": 2500 },
-            { "source": "Direct", "users": 1800 },
-            { "source": "Referral", "users": 1200 }
-          ],
-          product_stats: [
-            { "price": 10, "units_sold": 150 },
-            { "price": 15, "units_sold": 120 },
-            { "price": 20, "units_sold": 110 },
-            { "price": 25, "units_sold": 90 },
-            { "price": 30, "units_sold": 80 }
-          ]
+          sales: [ { "month": "Jan", "revenue": 15000, "profit": 6000 }, { "month": "Feb", "revenue": 18000, "profit": 7500 }, { "month": "Mar", "revenue": 22000, "profit": 9000 } ],
+          traffic: [ { "source": "Organic", "users": 2500 }, { "source": "Direct", "users": 1800 }, { "source": "Referral", "users": 1200 } ],
+          product_stats: [ { "price": 10, "units_sold": 150 }, { "price": 15, "units_sold": 120 }, { "price": 20, "units_sold": 110 }, { "price": 25, "units_sold": 90 }, { "price": 30, "units_sold": 80 } ]
         };
 
         const eventLog = document.getElementById('event-log');
@@ -95,28 +105,93 @@
             eventLog.textContent = `Event: ${type}\n\n${JSON.stringify(detailWithoutEvent, null, 2)}\n\n` + eventLog.textContent;
         }
 
-        // Wait for the components to be defined, then set their data properties.
-        Promise.all([
-            customElements.whenDefined('oneviz-barchart'),
-            customElements.whenDefined('oneviz-piechart'),
-            customElements.whenDefined('oneviz-linechart'),
-            customElements.whenDefined('oneviz-scatterchart')
-        ]).then(() => {
-            const barChart = document.getElementById('bar-chart');
-            const pieChart = document.getElementById('pie-chart');
-            const lineChart = document.getElementById('line-chart');
-            const scatterChart = document.getElementById('scatter-chart');
+        const chartSelector = document.getElementById('chart-selector');
+        const bgColorPicker = document.getElementById('bg-color-picker');
+        const titleColorPicker = document.getElementById('title-color-picker');
+        const axisLabelColorPicker = document.getElementById('axis-label-color-picker');
 
-            barChart.data = demoData.sales;
-            pieChart.data = demoData.traffic;
-            lineChart.data = demoData.sales;
-            scatterChart.data = demoData.product_stats;
+        const charts = {
+            'bar-chart': document.getElementById('bar-chart'),
+            'pie-chart': document.getElementById('pie-chart'),
+            'line-chart': document.getElementById('line-chart'),
+            'scatter-chart': document.getElementById('scatter-chart')
+        };
 
-            barChart.addEventListener('oneviz-bar-click', logEvent);
-            pieChart.addEventListener('oneviz-pie-click', logEvent);
-            lineChart.addEventListener('oneviz-line-click', logEvent);
-            scatterChart.addEventListener('oneviz-scatter-click', logEvent);
-        });
+        const defaultTheme = {
+            '--oneviz-background-color': '#ffffff',
+            '--oneviz-title-color': '#333333',
+            '--oneviz-axis-label-color': '#666666'
+        };
+
+        // This state object is the single source of truth for themes.
+        const chartThemes = {};
+
+        function applyThemeFor(chartId, theme) {
+            const chart = charts[chartId];
+            if (!chart) return;
+
+            chartThemes[chartId] = theme; // Update state
+            Object.entries(theme).forEach(([prop, value]) => {
+                chart.style.setProperty(prop, value);
+            });
+            chart.refreshChart();
+        }
+
+        function onControlsChange() {
+            const selectedChartId = chartSelector.value;
+            const chartIdsToUpdate = selectedChartId === 'all' ? Object.keys(charts) : [selectedChartId];
+
+            const newTheme = {
+                '--oneviz-background-color': bgColorPicker.value,
+                '--oneviz-title-color': titleColorPicker.value,
+                '--oneviz-axis-label-color': axisLabelColorPicker.value
+            };
+
+            chartIdsToUpdate.forEach(id => applyThemeFor(id, newTheme));
+        }
+
+        function onSelectorChange() {
+            const selectedChartId = chartSelector.value;
+            const theme = selectedChartId === 'all' ? defaultTheme : chartThemes[selectedChartId];
+
+            bgColorPicker.value = theme['--oneviz-background-color'];
+            titleColorPicker.value = theme['--oneviz-title-color'];
+            axisLabelColorPicker.value = theme['--oneviz-axis-label-color'];
+        }
+
+        // --- Main Initialization ---
+        async function main() {
+            // Wait for all chart components to be defined
+            await Promise.all(Object.values(charts).map(c => customElements.whenDefined(c.localName)));
+
+            // Initialize themes and set data for each chart
+            Object.entries(charts).forEach(([id, chart]) => {
+                chartThemes[id] = { ...defaultTheme };
+                Object.entries(chartThemes[id]).forEach(([prop, value]) => {
+                    chart.style.setProperty(prop, value);
+                });
+
+                if (id === 'bar-chart' || id === 'line-chart') chart.data = demoData.sales;
+                else if (id === 'pie-chart') chart.data = demoData.traffic;
+                else if (id === 'scatter-chart') chart.data = demoData.product_stats;
+                
+                chart.addEventListener('oneviz-bar-click', logEvent);
+                chart.addEventListener('oneviz-pie-click', logEvent);
+                chart.addEventListener('oneviz-line-click', logEvent);
+                chart.addEventListener('oneviz-scatter-click', logEvent);
+            });
+
+            // Set initial state of the controls
+            onSelectorChange();
+
+            // Wire up event listeners
+            chartSelector.addEventListener('change', onSelectorChange);
+            bgColorPicker.addEventListener('input', onControlsChange);
+            titleColorPicker.addEventListener('input', onControlsChange);
+            axisLabelColorPicker.addEventListener('input', onControlsChange);
+        }
+
+        main();
     </script>
 </body>
 </html>

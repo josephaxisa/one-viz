@@ -21,6 +21,8 @@ export abstract class AbstractChart extends LitElement {
     static styles = css`
         :host {
             display: block;
+            width: 100%;
+            height: 100%;
             /* Default theme variables */
             --oneviz-background-color: #ffffff;
             --oneviz-title-color: #333333;
@@ -35,67 +37,64 @@ export abstract class AbstractChart extends LitElement {
             color: var(--oneviz-title-color);
             font-family: var(--oneviz-font-family);
         }
+        #chart-container {
+            width: 100%;
+            height: 400px;
+        }
     `;
 
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        if (this.chart) {
+            this.chart.destroy();
+            this.chart = null;
+        }
+    }
+
     async updated(changedProperties: Map<string | number | symbol, unknown>) {
-        if (changedProperties.has('data')) {
-            try {
-                await this.highchartsPromise;
-                this.createChart();
-            } catch (error) {
-                console.error("Highcharts failed to load", error);
-            }
+        super.updated(changedProperties);
+        if (changedProperties.has('data') && this.data?.length > 0) {
+            await this.highchartsPromise;
+            this.createChart();
         }
     }
 
     private getThemedChartOptions(): Options {
+        const styles = getComputedStyle(this);
+        const backgroundColor = styles.getPropertyValue('--oneviz-background-color').trim();
+        const titleColor = styles.getPropertyValue('--oneviz-title-color').trim();
+        const axisLabelColor = styles.getPropertyValue('--oneviz-axis-label-color').trim();
+        const fontFamily = styles.getPropertyValue('--oneviz-font-family').trim();
+
         return {
             chart: {
-                backgroundColor: 'var(--oneviz-background-color)',
-                style: {
-                    fontFamily: 'var(--oneviz-font-family)',
-                }
+                backgroundColor: backgroundColor || undefined,
+                style: { fontFamily: fontFamily || undefined }
             },
-            title: {
-                style: {
-                    color: 'var(--oneviz-title-color)',
-                }
-            },
+            title: { style: { color: titleColor || undefined } },
             xAxis: {
-                labels: {
-                    style: {
-                        color: 'var(--oneviz-axis-label-color)',
-                    }
-                },
-                title: {
-                    style: {
-                        color: 'var(--oneviz-axis-label-color)',
-                    }
-                }
+                labels: { style: { color: axisLabelColor || undefined } },
+                title: { style: { color: axisLabelColor || undefined } }
             },
             yAxis: {
-                labels: {
-                    style: {
-                        color: 'var(--oneviz-axis-label-color)',
-                    }
-                },
-                title: {
-                    style: {
-                        color: 'var(--oneviz-axis-label-color)',
-                    }
-                }
+                labels: { style: { color: axisLabelColor || undefined } },
+                title: { style: { color: axisLabelColor || undefined } }
             },
-            legend: {
-                itemStyle: {
-                    color: 'var(--oneviz-axis-label-color)',
-                }
-            }
+            legend: { itemStyle: { color: axisLabelColor || undefined } }
         };
     }
 
-    createChart() {
-        if (!this.data || this.data.length === 0) {
+    public refreshChart() {
+        this.createChart();
+    }
+
+    private createChart() {
+        if (!this.data || this.data.length === 0 || !window.Highcharts) {
             return;
+        }
+
+        if (this.chart) {
+            this.chart.destroy();
         }
 
         const container = this.shadowRoot?.querySelector('#chart-container');
@@ -105,11 +104,10 @@ export abstract class AbstractChart extends LitElement {
         }
 
         const specificOptions = this.getSpecificChartOptions();
-        if (specificOptions) {
-            const themedOptions = this.getThemedChartOptions();
-            const finalOptions = deepMerge(themedOptions, specificOptions);
-            this.chart = window.Highcharts.chart(container as HTMLElement, finalOptions);
-        }
+        const themedOptions = this.getThemedChartOptions();
+        const finalOptions = deepMerge(themedOptions, specificOptions);
+        
+        this.chart = window.Highcharts.chart(container as HTMLElement, finalOptions);
     }
 
     abstract getSpecificChartOptions(): Options | null;
