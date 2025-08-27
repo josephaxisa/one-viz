@@ -5,11 +5,7 @@ import { AbstractChart } from '../AbstractChart/AbstractChart';
 @customElement('oneviz-scatterchart')
 export class OneVizScatterChart extends AbstractChart {
   
-  getSpecificChartOptions(): Options | null {
-    if (!this.data || this.data.length === 0) {
-        return null;
-    }
-
+  protected getSpecificChartOptions(): Options {
     const seriesData = this.data.map((item: any) => ({
         x: item[this.xField],
         y: item[this.yField]
@@ -39,17 +35,7 @@ export class OneVizScatterChart extends AbstractChart {
         showInLegend: false,
         point: {
             events: {
-                click: (event: any) => {
-                    this.dispatchEvent(new CustomEvent('oneviz-scatter-click', {
-                        detail: {
-                            x: event.point.x,
-                            y: event.point.y,
-                            originalEvent: event
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                }
+                click: (event: any) => this.pointClickCallback(event.point.x)
             }
         }
       }]

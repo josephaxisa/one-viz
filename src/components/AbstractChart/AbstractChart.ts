@@ -6,16 +6,19 @@ import { deepMerge } from '../../utils/deep-merge';
 
 export abstract class AbstractChart extends LitElement {
     @property({ type: String }) title = '';
-    @property({ type: Array }) data = [];
+    @property({ type: Array }) data: any[] = [];
     @property({ type: String, attribute: 'x-field' }) xField = '';
     @property({ type: String, attribute: 'y-field' }) yField = '';
 
     protected chart: any = null;
-    private highchartsPromise: Promise<void>;
+    protected highchartsPromise: Promise<any>;
+    private originalData: any[] = [];
+    private currentFilter: { field: string, value: any } | null = null;
 
     constructor() {
         super();
         this.highchartsPromise = loadHighcharts();
+        window.addEventListener('oneviz-filter-change', this.handleFilterChange.bind(this) as EventListener);
     }
 
     static styles = css`
@@ -49,13 +52,68 @@ export abstract class AbstractChart extends LitElement {
             this.chart.destroy();
             this.chart = null;
         }
+        window.removeEventListener('oneviz-filter-change', this.handleFilterChange.bind(this) as EventListener);
     }
 
     async updated(changedProperties: Map<string | number | symbol, unknown>) {
         super.updated(changedProperties);
-        if (changedProperties.has('data') && this.data?.length > 0) {
+        if (changedProperties.has('data')) {
+            if (!this.originalData.length) {
+                this.originalData = [...this.data];
+            }
             await this.highchartsPromise;
             this.createChart();
+        }
+    }
+
+    private handleFilterChange(event: CustomEvent) {
+        const { field, value, source } = event.detail;
+
+        // Ignore events from self
+        if (source === this) {
+            return;
+        }
+
+        // If the filter's field doesn't match the chart's xField, ignore it
+        if (field !== this.xField) {
+            return;
+        }
+
+        // If value is null, it's a signal to clear the filter
+        if (value === null) {
+            this.currentFilter = null;
+            this.data = [...this.originalData];
+        } else { // Otherwise, apply the new filter
+            this.currentFilter = { field, value };
+            this.data = this.originalData.filter(item => item[this.xField] === value);
+        }
+    }
+
+    protected pointClickCallback(value: any) {
+        const field = this.xField;
+
+        // If the user clicks the currently active filter point, clear the filter
+        if (this.currentFilter?.field === field && this.currentFilter?.value === value) {
+            this.currentFilter = null;
+            this.data = [...this.originalData];
+            
+            // Dispatch a global event to clear filters on other charts
+            window.dispatchEvent(new CustomEvent('oneviz-filter-change', {
+                detail: { field, value: null, source: this },
+                bubbles: true,
+                composed: true
+            }));
+        } else {
+            // Apply the filter locally
+            this.currentFilter = { field, value };
+            this.data = this.originalData.filter(item => item[this.xField] === value);
+
+            // Dispatch a global event to apply filters on other charts
+            window.dispatchEvent(new CustomEvent('oneviz-filter-change', {
+                detail: { field, value, source: this },
+                bubbles: true,
+                composed: true
+            }));
         }
     }
 
@@ -89,7 +147,15 @@ export abstract class AbstractChart extends LitElement {
     }
 
     private createChart() {
-        if (!this.data || this.data.length === 0 || !window.Highcharts) {
+        if (!this.data || !window.Highcharts) {
+            // If data is empty, still render an empty chart for consistency
+            if (this.chart) {
+                this.chart.destroy();
+            }
+            const container = this.shadowRoot?.querySelector('#chart-container');
+            if (container) {
+                this.chart = window.Highcharts.chart(container as HTMLElement, this.getThemedChartOptions());
+            }
             return;
         }
 
@@ -110,7 +176,7 @@ export abstract class AbstractChart extends LitElement {
         this.chart = window.Highcharts.chart(container as HTMLElement, finalOptions);
     }
 
-    abstract getSpecificChartOptions(): Options | null;
+    protected abstract getSpecificChartOptions(): Options;
 
     render() {
         return html`

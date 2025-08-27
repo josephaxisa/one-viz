@@ -5,11 +5,7 @@ import { AbstractChart } from '../AbstractChart/AbstractChart';
 @customElement('oneviz-piechart')
 export class OneVizPieChart extends AbstractChart {
   
-  getSpecificChartOptions(): Options | null {
-    if (!this.data || this.data.length === 0) {
-        return null;
-    }
-
+  protected getSpecificChartOptions(): Options {
     const seriesData = this.data.map((item: any) => ({
         name: item[this.xField],
         y: item[this.yField]
@@ -28,17 +24,7 @@ export class OneVizPieChart extends AbstractChart {
         data: seriesData,
         point: {
             events: {
-                click: (event: any) => {
-                    this.dispatchEvent(new CustomEvent('oneviz-pie-click', {
-                        detail: {
-                            name: event.point.name,
-                            value: event.point.y,
-                            originalEvent: event
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                }
+                click: (event: any) => this.pointClickCallback(event.point.name)
             }
         }
       }]

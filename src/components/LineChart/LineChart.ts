@@ -12,11 +12,7 @@ export class OneVizLineChart extends AbstractChart {
     }
   `;
 
-  getSpecificChartOptions(): Options | null {
-    if (!this.data || this.data.length === 0) {
-        return null;
-    }
-
+  protected getSpecificChartOptions(): Options {
     const seriesData = this.data.map((item: any) => item[this.yField]);
     const categories = this.data.map((item: any) => item[this.xField]);
 
@@ -46,17 +42,7 @@ export class OneVizLineChart extends AbstractChart {
         showInLegend: false,
         point: {
             events: {
-                click: (event: any) => {
-                    this.dispatchEvent(new CustomEvent('oneviz-line-click', {
-                        detail: {
-                            category: event.point.category,
-                            value: event.point.y,
-                            originalEvent: event
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                }
+                click: (event: any) => this.pointClickCallback(event.point.category)
             }
         }
       }]
