@@ -5,47 +5,42 @@ import { css } from 'lit';
 
 @customElement('oneviz-linechart')
 export class OneVizLineChart extends AbstractChart {
-
-  static styles = css`
-    :host {
-      --oneviz-line-color: #007bff;
-    }
-  `;
-
   protected getSpecificChartOptions(): Options {
     const seriesData = this.data.map((item: any) => item[this.yField]);
     const categories = this.data.map((item: any) => item[this.xField]);
 
     return {
       chart: {
-        type: 'line'
+        type: 'line',
       },
       title: {
-        text: '' // Title is handled by the component's template
+        text: '', // Title is handled by the component's template
       },
       xAxis: {
         categories: categories,
         title: {
-          text: this.xField
-        }
+          text: this.xField,
+        },
       },
       yAxis: {
         title: {
-          text: this.yField
-        }
+          text: this.yField,
+        },
       },
-      series: [{
-        type: 'line',
-        name: this.yField,
-        data: seriesData,
-        color: 'var(--oneviz-line-color)',
-        showInLegend: false,
-        point: {
+      series: [
+        {
+          type: 'line',
+          name: this.yField,
+          data: seriesData,
+          showInLegend: false,
+          point: {
             events: {
-                click: (event: any) => this.pointClickCallback(event.point.category)
-            }
-        }
-      }]
+              click: (event: any) =>
+                this.pointClickCallback(event.point.category),
+            },
+          },
+        },
+      ],
     };
   }
 }

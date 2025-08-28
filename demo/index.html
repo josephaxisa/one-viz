@@ -42,6 +42,11 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+    .theme-controls .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1em;
+        }
     </style>
 </head>
 <body>
@@ -73,6 +78,31 @@
         <div class="control-group">
             <label for="axis-label-color-picker">Axis/Label Color:</label>
             <input type="color" id="axis-label-color-picker">
+        </div>
+        <hr>
+        <label>Data Color Palette:</label>
+        <div class="color-palette">
+            <div class="control-group">
+                <label for="color-1-picker">Color 1:</label>
+                <input type="color" id="color-1-picker">
+            </div>
+            <div class="control-group">
+                <label for="color-2-picker">Color 2:</label>
+                <input type="color" id="color-2-picker">
+            </div>
+            <div class="control-group">
+                <label for="color-3-picker">Color 3:</label>
+                <input type="color" id="color-3-picker">
+            </div>
+            <div class="control-group">
+                <label for="color-4-picker">Color 4:</label>
+                <input type="color" id="color-4-picker">
+            </div>
+        </div>
+        <hr>
+        <div class="control-group">
+            <label for="tooltip-format-input">Tooltip Format:</label>
+            <input type="text" id="tooltip-format-input" placeholder="e.g., <b>{point.key}</b>: {point.y}">
         </div>
     </div>
 
@@ -131,6 +161,13 @@
         const bgColorPicker = document.getElementById('bg-color-picker');
         const titleColorPicker = document.getElementById('title-color-picker');
         const axisLabelColorPicker = document.getElementById('axis-label-color-picker');
+        const tooltipFormatInput = document.getElementById('tooltip-format-input');
+        const colorPickers = [
+            document.getElementById('color-1-picker'),
+            document.getElementById('color-2-picker'),
+            document.getElementById('color-3-picker'),
+            document.getElementById('color-4-picker'),
+        ];
 
         const charts = {
             'bar-chart': document.getElementById('bar-chart'),
@@ -145,7 +182,11 @@
         const defaultTheme = {
             '--oneviz-background-color': '#ffffff',
             '--oneviz-title-color': '#333333',
-            '--oneviz-axis-label-color': '#666666'
+            '--oneviz-axis-label-color': '#666666',
+            '--oneviz-color-1': '#7cb5ec',
+            '--oneviz-color-2': '#434348',
+            '--oneviz-color-3': '#90ed7d',
+            '--oneviz-color-4': '#f7a35c',
         };
 
         // This state object is the single source of truth for themes.
@@ -162,6 +203,12 @@
             chart.refreshChart();
         }
 
+        function applyTooltipFormat(chartId, format) {
+            const chart = charts[chartId];
+            if (!chart) return;
+            chart.setAttribute('tooltip-format', format);
+        }
+
         function onControlsChange() {
             const selectedChartId = chartSelector.value;
             const chartIdsToUpdate = selectedChartId === 'all' ? Object.keys(charts) : [selectedChartId];
@@ -169,10 +216,15 @@
             const newTheme = {
                 '--oneviz-background-color': bgColorPicker.value,
                 '--oneviz-title-color': titleColorPicker.value,
-                '--oneviz-axis-label-color': axisLabelColorPicker.value
+                '--oneviz-axis-label-color': axisLabelColorPicker.value,
+                '--oneviz-color-1': colorPickers[0].value,
+                '--oneviz-color-2': colorPickers[1].value,
+                '--oneviz-color-3': colorPickers[2].value,
+                '--oneviz-color-4': colorPickers[3].value,
             };
 
             chartIdsToUpdate.forEach(id => applyThemeFor(id, newTheme));
+            chartIdsToUpdate.forEach(id => applyTooltipFormat(id, tooltipFormatInput.value));
         }
 
         function onSelectorChange() {
@@ -182,6 +234,13 @@
             bgColorPicker.value = theme['--oneviz-background-color'];
             titleColorPicker.value = theme['--oneviz-title-color'];
             axisLabelColorPicker.value = theme['--oneviz-axis-label-color'];
+            colorPickers[0].value = theme['--oneviz-color-1'];
+            colorPickers[1].value = theme['--oneviz-color-2'];
+            colorPickers[2].value = theme['--oneviz-color-3'];
+            colorPickers[3].value = theme['--oneviz-color-4'];
+
+            const chart = charts[selectedChartId];
+            tooltipFormatInput.value = chart ? chart.getAttribute('tooltip-format') || '' : '';
         }
 
         // --- Main Initialization ---
@@ -218,6 +277,8 @@
             bgColorPicker.addEventListener('input', onControlsChange);
             titleColorPicker.addEventListener('input', onControlsChange);
             axisLabelColorPicker.addEventListener('input', onControlsChange);
+            colorPickers.forEach(picker => picker.addEventListener('input', onControlsChange));
+            tooltipFormatInput.addEventListener('input', onControlsChange);
         }
 
         main();

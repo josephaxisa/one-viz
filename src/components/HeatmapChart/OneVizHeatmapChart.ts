@@ -20,6 +20,10 @@ export class OneVizHeatmapChart extends AbstractChart {
   }
 
   protected getSpecificChartOptions(): Options {
+    const styles = getComputedStyle(this);
+    const minColor = styles.getPropertyValue('--oneviz-color-2').trim() || '#FFFFFF';
+    const maxColor = styles.getPropertyValue('--oneviz-color-1').trim() || '#007bff';
+
     return {
       chart: {
         type: 'heatmap',
@@ -38,7 +42,11 @@ export class OneVizHeatmapChart extends AbstractChart {
         title: undefined,
         reversed: true,
       },
-      colorAxis: JSON.parse(this.colorAxis),
+      colorAxis: {
+        min: 0,
+        minColor: minColor,
+        maxColor: maxColor,
+      },
       legend: {
         align: 'right',
         layout: 'vertical',
