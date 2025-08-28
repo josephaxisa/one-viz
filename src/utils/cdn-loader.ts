@@ -25,7 +25,8 @@ async function loadHighchartsCore(): Promise<void> {
 export async function loadHighchartsModule(moduleName: string): Promise<void> {
   await loadHighchartsCore();
   if (!highchartsModules[moduleName]) {
-    highchartsModules[moduleName] = loadScript(`${HIGHCHARTS_BASE_URL}modules/${moduleName}.js`);
+    const modulePath = moduleName === 'highcharts-more' ? '' : 'modules/';
+    highchartsModules[moduleName] = loadScript(`${HIGHCHARTS_BASE_URL}${modulePath}${moduleName}.js`);
   }
   await highchartsModules[moduleName];
 }
