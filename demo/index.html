@@ -3,31 +3,35 @@
 <head>
     <title>One-viz Demo</title>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #111827; /* Darker Slate Gray for the page background */
+            color: #f9fafb;
             margin: 0;
             padding: 1em;
         }
         header { text-align: center; margin-bottom: 2em; }
-        h1 { font-size: 2.5em; }
-        h2 { font-size: 1.8em; border-bottom: 1px solid #dee2e6; padding-bottom: 0.5em; margin-top: 2em; }
+        h1 { font-size: 2.5em; color: #f9fafb; }
+        h2 { font-size: 1.8em; border-bottom: 1px solid #374151; padding-bottom: 0.5em; margin-top: 2em; }
         .container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 2em;
         }
         .chart-wrapper {
-            background-color: #ffffff;
-            border: 1px solid #dee2e6;
+            background-color: #1f2937; /* Match the chart background */
+            border: 1px solid #374151; /* Slightly lighter border */
             border-radius: 8px;
             padding: 1.5em;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .theme-controls {
-            background-color: #ffffff;
-            border: 1px solid #dee2e6;
+            background-color: #1f2937;
+            border: 1px solid #374151;
             border-radius: 8px;
             padding: 1.5em;
             margin-bottom: 2em;
@@ -38,7 +42,9 @@
         .theme-controls input, .theme-controls select {
             width: 100%;
             padding: 0.5em;
-            border: 1px solid #ccc;
+            background-color: #374151;
+            color: #f9fafb;
+            border: 1px solid #4b5563;
             border-radius: 4px;
             box-sizing: border-box;
         }
@@ -65,6 +71,8 @@
                 <option value="pie-chart">Pie Chart</option>
                 <option value="line-chart">Line Chart</option>
                 <option value="scatter-chart">Scatter Chart</option>
+                <option value="heatmap-chart">Heatmap Chart</option>
+                <option value="bubble-chart">Bubble Chart</option>
             </select>
         </div>
         <div class="control-group">
@@ -117,7 +125,7 @@
 
     <h2>Event Log</h2>
     <div class="container">
-        <pre id="event-log" style="background-color: #e9ecef; padding: 1em; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; height: 200px; overflow-y: auto;"></pre>
+        <pre id="event-log" style="background-color: #374151; color: #d1d5db; padding: 1em; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; height: 200px; overflow-y: auto;"></pre>
     </div>
 
     <script type="module">
@@ -178,13 +186,14 @@
         };
 
         const defaultTheme = {
-            '--oneviz-background-color': '#ffffff',
-            '--oneviz-title-color': '#333333',
-            '--oneviz-axis-label-color': '#666666',
-            '--oneviz-color-1': '#7cb5ec',
-            '--oneviz-color-2': '#434348',
-            '--oneviz-color-3': '#90ed7d',
-            '--oneviz-color-4': '#f7a35c',
+            '--oneviz-background-color': '#1f2937', // Dark Slate Gray
+            '--oneviz-title-color': '#f9fafb', // Off-white
+            '--oneviz-axis-label-color': '#d1d5db', // Light Gray
+            '--oneviz-font-family': "'Inter', sans-serif",
+            '--oneviz-color-1': '#38bdf8', // Sky Blue
+            '--oneviz-color-2': '#818cf8', // Indigo
+            '--oneviz-color-3': '#a78bfa', // Violet
+            '--oneviz-color-4': '#f472b6', // Pink
         };
 
         // This state object is the single source of truth for themes.
