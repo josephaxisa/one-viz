@@ -59,9 +59,9 @@ export class OneVizHeatmapChart extends AbstractChart {
         formatter: function () {
           const point = this.point as Highcharts.Point & { value: number };
           if (point && this.series && this.series.yAxis.categories && this.series.xAxis.categories && point.y !== undefined) {
-            return `<b>${this.series.xAxis.categories[point.x]}</b> sold <br><b>${
-              point.value
-            }</b> items on <br><b>${this.series.yAxis.categories[point.y]}</b>`;
+            const xCategory = this.series.xAxis.categories[point.x];
+            const yCategory = this.series.yAxis.categories[point.y];
+            return `<b>${xCategory}</b><br><b>${yCategory}</b><br>Value: <b>${point.value}</b>`;
           }
           return '';
         },
@@ -69,7 +69,7 @@ export class OneVizHeatmapChart extends AbstractChart {
       series: [
         {
           type: 'heatmap',
-          name: 'Sales per employee',
+          name: this.title,
           borderWidth: 1,
           data: this.data,
           dataLabels: {

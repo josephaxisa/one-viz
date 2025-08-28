@@ -108,7 +108,6 @@
 
     <div class="container">
         <div class="chart-wrapper"><oneviz-barchart id="bar-chart" x-field="month" y-field="revenue" title="Monthly Revenue"></oneviz-barchart></div>
-        <div class="chart-wrapper"><oneviz-barchart id="bar-chart-profit" x-field="month" y-field="profit" title="Monthly Profit (by Month)"></oneviz-barchart></div>
         <div class="chart-wrapper"><oneviz-piechart id="pie-chart" x-field="source" y-field="users" title="Website Traffic Sources"></oneviz-piechart></div>
         <div class="chart-wrapper"><oneviz-linechart id="line-chart" x-field="month" y-field="profit" title="Monthly Profit"></oneviz-linechart></div>
         <div class="chart-wrapper"><oneviz-scatterchart id="scatter-chart" x-field="price" y-field="units_sold" title="Price vs. Units Sold"></oneviz-scatterchart></div>
@@ -171,7 +170,6 @@
 
         const charts = {
             'bar-chart': document.getElementById('bar-chart'),
-            'bar-chart-profit': document.getElementById('bar-chart-profit'),
             'pie-chart': document.getElementById('pie-chart'),
             'line-chart': document.getElementById('line-chart'),
             'scatter-chart': document.getElementById('scatter-chart'),
@@ -256,7 +254,7 @@
                     chart.style.setProperty(prop, value);
                 });
 
-                if (id === 'bar-chart' || id === 'line-chart' || id === 'bar-chart-profit') chart.data = demoData.sales;
+                if (id === 'bar-chart' || id === 'line-chart') chart.data = demoData.sales;
                 else if (id === 'pie-chart') chart.data = demoData.traffic;
                 else if (id === 'scatter-chart') chart.data = demoData.product_stats;
                 else if (id === 'heatmap-chart') {
