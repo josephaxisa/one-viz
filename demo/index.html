@@ -73,6 +73,7 @@
                 <option value="scatter-chart">Scatter Chart</option>
                 <option value="heatmap-chart">Heatmap Chart</option>
                 <option value="bubble-chart">Bubble Chart</option>
+                <option value="combination-chart">Combination Chart</option>
             </select>
         </div>
         <div class="control-group">
@@ -121,6 +122,7 @@
         <div class="chart-wrapper"><oneviz-scatterchart id="scatter-chart" x-field="price" y-field="units_sold" title="Price vs. Units Sold"></oneviz-scatterchart></div>
         <div class="chart-wrapper"><oneviz-heatmap id="heatmap-chart" title="Sales per Employee per Day"></oneviz-heatmap></div>
         <div class="chart-wrapper"><oneviz-bubblechart id="bubble-chart" title="Market Analysis (Price vs. Sales vs. Market Share)" x-field="price" y-field="units_sold" z-field="market_share"></oneviz-bubblechart></div>
+        <div class="chart-wrapper"><oneviz-combinationchart id="combination-chart" title="Revenue vs. Profit" x-field="month" bar-field="revenue" line-field="profit" secondary-y-axis></oneviz-combinationchart></div>
     </div>
 
     <h2>Event Log</h2>
@@ -154,12 +156,23 @@
             { "price": 20, "units_sold": 110, "market_share": 22 },
             { "price": 25, "units_sold": 90, "market_share": 15 },
             { "price": 30, "units_sold": 80, "market_share": 8 }
-          ]
+          ],
+          sales_drilldown: {
+            "Jan": [["Online", 8000], ["In-Store", 7000]],
+            "Feb": [["Online", 9000], ["In-Store", 9000]],
+            "Mar": [["Online", 12000], ["In-Store", 10000]],
+            "Apr": [["Online", 15000], ["In-Store", 10000]],
+            "May": [["Online", 13000], ["In-Store", 10000]]
+          }
         };
 
         const eventLog = document.getElementById('event-log');
         function logEvent(event) {
             const { type, detail } = event;
+            if (!detail || !detail.source) {
+                eventLog.textContent = `Event: ${type}\n\n${JSON.stringify(detail, null, 2)}\n\n` + eventLog.textContent;
+                return;
+            }
             const detailWithoutEvent = { ...detail, source: `[${detail.source.tagName}]` };
             eventLog.textContent = `Event: ${type}\n\n${JSON.stringify(detailWithoutEvent, null, 2)}\n\n` + eventLog.textContent;
         }
@@ -182,7 +195,8 @@
             'line-chart': document.getElementById('line-chart'),
             'scatter-chart': document.getElementById('scatter-chart'),
             'heatmap-chart': document.getElementById('heatmap-chart'),
-            'bubble-chart': document.getElementById('bubble-chart')
+            'bubble-chart': document.getElementById('bubble-chart'),
+            'combination-chart': document.getElementById('combination-chart')
         };
 
         const defaultTheme = {
@@ -263,7 +277,12 @@
                     chart.style.setProperty(prop, value);
                 });
 
-                if (id === 'bar-chart' || id === 'line-chart') chart.data = demoData.sales;
+                if (id === 'bar-chart') {
+                  chart.data = demoData.sales;
+                  chart.drilldownData = demoData.sales_drilldown;
+                } else if (id === 'line-chart') {
+                  chart.data = demoData.sales;
+                }
                 else if (id === 'pie-chart') chart.data = demoData.traffic;
                 else if (id === 'scatter-chart') chart.data = demoData.product_stats;
                 else if (id === 'heatmap-chart') {
@@ -272,6 +291,8 @@
                   chart.data = demoData.heatmap_data.data;
                 } else if (id === 'bubble-chart') {
                   chart.data = demoData.market_data;
+                } else if (id === 'combination-chart') {
+                  chart.data = demoData.sales;
                 }
             });
 
@@ -279,7 +300,12 @@
             onSelectorChange();
 
             // Wire up event listeners
-            window.addEventListener('oneviz-filter-change', logEvent);
+            window.addEventListener('oneviz-drilldown', logEvent);
+            window.addEventListener('oneviz-drillup', logEvent);
+            Object.values(charts).forEach(chart => {
+              chart.addEventListener('oneviz-drilldown', logEvent);
+              chart.addEventListener('oneviz-drillup', logEvent);
+            });
             chartSelector.addEventListener('change', onSelectorChange);
             bgColorPicker.addEventListener('input', onControlsChange);
             titleColorPicker.addEventListener('input', onControlsChange);

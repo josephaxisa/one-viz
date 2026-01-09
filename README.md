@@ -103,9 +103,14 @@ You can style all charts by setting these CSS variables on the component or a pa
 
 #### `<oneviz-barchart>`
 
-*   **Event:** `oneviz-bar-click`
-    *   Fired when a bar is clicked.
-    *   `event.detail`: `{ category: string, value: number, originalEvent: object }`
+*   **Properties:**
+    *   `drilldownData`: `Object` - An object where keys match the category names from the main `data` array. The values are arrays of data for the drill-down series.
+*   **Events:**
+    *   `oneviz-drilldown`: Fired when a user clicks a bar with associated drill-down data.
+        *   `event.detail`: `{ point: object }`
+    *   `oneviz-drillup`: Fired when the user returns from a drill-down view.
+    *   `oneviz-bar-click`: Fired when a bar is clicked.
+        *   `event.detail`: `{ category: string, value: number, originalEvent: object }`
 
 #### `<oneviz-piechart>`
 

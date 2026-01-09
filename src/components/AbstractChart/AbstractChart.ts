@@ -73,9 +73,34 @@ export abstract class AbstractChart extends LitElement {
             if (!this.originalData.length) {
                 this.originalData = [...this.data];
             }
+            this.validateData();
             await this.highchartsPromise;
             this.createChart();
         }
+    }
+
+    protected validateData(): boolean {
+        if (!this.data || this.data.length === 0) {
+            console.warn(`One-viz chart [${this.title || this.constructor.name}] received no data.`);
+            return false;
+        }
+
+        if (!Array.isArray(this.data)) {
+            console.error(`One-viz chart [${this.title || this.constructor.name}] expects data to be an array, but received:`, this.data);
+            return false;
+        }
+
+        const requiredFields = [this.xField, this.yField].filter(Boolean);
+        const sample = this.data[0];
+
+        for (const field of requiredFields) {
+            if (!(field in sample)) {
+                console.error(`One-viz chart [${this.title || this.constructor.name}] is missing required field '${field}' in the data.`);
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private handleFilterChange(event: CustomEvent) {

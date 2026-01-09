@@ -4,3 +4,4 @@ export * from './PieChart';
 export * from './ScatterChart';
 export * from './HeatmapChart';
 export * from './BubbleChart';
+export * from './CombinationChart';
